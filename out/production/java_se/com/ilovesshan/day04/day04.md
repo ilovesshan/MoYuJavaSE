@@ -262,9 +262,10 @@
               for (int j = 0; j < 5; j++) {
                   // break 默认只会打断当前循环 并不会打断外层的for
                   // 如果在某个条件下 想打断外层for循环 可以使用打标签的方式
-                  
+              
                   if(/*条件*/){
-                      break outerFor;
+                      // outerFor 可以自己随便命名。
+                      break outerFor ;
                   }
               }
           }
@@ -276,4 +277,48 @@
 
 ##### 3.2、while 循环
 
++ 语法 `while(/*条件*/) {/* 逻辑代码*/}`
+
+  ```java
+  public class WhileCycle {
+      public static void main(String[] args) {
+          int i = 0;
+          while ( i< 10){
+              i++;
+              System.out.println("好好学习~");
+          }
+      }
+  }
+  
+  ```
+
+  
+
 ##### 3.3、do..while  循环
+
++ 语法 ` do {/* 逻辑代码*/} while(/*条件*/)`
+
+  ```java
+  public class WhileCycle {
+      public static void main(String[] args) {
+          int i = 0;
+          do {
+              i++;
+              System.out.println("好好学习~");
+          } while (i < 10);
+      }
+  }
+  
+  ```
+
+##### 3.4、continue和break
+
++ continue 跳出当前循环、继续执行下一次循环
++ break 直接跳出本次循环
+
+##### 3.5、三个循环的区别
+
++ 知道要循环的次数、可以使用for
++ 不知道循环次数、使用 while 或者 do while
++ while 满足条件才执行条件体中的代码
++ do while 不管三七二十一、先执行一次条件体中的代码 再看看条件 需不需要再次执行
