@@ -162,8 +162,50 @@
 
   ```java
   // 记住  
+  
   // 所占空间大的转向所占空间小的 需要强转(向下转型)
   // 所占空间小的转向所占空间大的 不需要手动转(jvm帮你转)
+  // char 类型做运算时 按照ASCII码规则
+  
+  
+  // float,double => byte、short、 int、long
+  
+  float num1 = 1.0F;
+  double num2 = 1.0F;
+  
+  byte num3 = 1;
+  short num4 = 1;
+  int num5 = 1;
+  long num6 = 1;
+  
+  
+  // ok
+  float r1 = num1 + num3;
+  double r2 = num2 + num4;
+  
+  // float -> byte
+  byte r3 = (byte) (num1 + num3);
+  
+  // double -> int
+  int r4 = (int) (num2 + num4);
+  
+  // long -> int
+  int r5 = (int) (num6 + num5);
+  
+  // long - short
+  short r6 = (short) (num6 + num4);
+  
+  // char +  byte、short、 int、long
+  char c1 = 'a';
+  char c2 = '1';
+  
+  // byte -> char
+  char r7 = (char) (c1 + c2 + num3);
+  
+  
+  // float -> char
+  char r8 = (char) (c1 + c2 + num1);
+  
   ```
 
   
