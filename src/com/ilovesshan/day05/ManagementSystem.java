@@ -74,6 +74,12 @@ public class ManagementSystem {
                 }
             }
         }
+
+        String[] temp = new String[names.length - 1];
+        for (int i = 0; i < names.length-1; i++) {
+            temp[i] = names[i];
+        }
+        names = temp;
     }
 
     private static void update(String name, String beEdit) {
