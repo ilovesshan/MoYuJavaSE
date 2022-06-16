@@ -1,6 +1,6 @@
 ###  JavaSE 摸鱼第五天...
 
-##### 1、安装摸鱼工具 IDEA
+#### 1、安装摸鱼工具 IDEA
 
 + 超级简单的，傻瓜式安装...
 
@@ -115,3 +115,172 @@ public class DefineArray {
 + 简单一句话概括就是：按照一定的顺序将数据存放起来。后期慢慢体会....
 
 #### 2、数组常见的操作
+
+##### 2.1、小试牛刀 遍历数组
+
+```java
+public class IteratorArray {
+    public static void main(String[] args) {
+        int[] ints = new int[]{10, 20, 30, 1, 0, 2, 45, 788, 45, 1, 5};
+
+        // for 循环
+        for (int i = 0; i < ints.length; i++) {
+            System.out.println(ints[i]);
+        }
+
+        // while 循环
+        int i = 0;
+        while (i < ints.length) {
+            System.out.println(ints[i]);
+            i++;
+        }
+    }
+}
+```
+
+
+
+##### 2.2、找元素 存不存在
+
+```java
+public class FindElement {
+    public static void main(String[] args) {
+        int[] ints = new int[]{10, 20, 30, 1, 0, 2, 45, 788, 45, 1, 5};
+        int findIndex = -1;
+
+        // 要寻找的元素
+        int target = 0;
+
+
+        for (int i = 0; i < ints.length; i++) {
+            if (target == ints[i]) {
+                findIndex = i;
+                break;
+            }
+        }
+        if (findIndex == -1) {
+            System.out.println("啊额、没找到...");
+        } else {
+            System.out.println("找到了, 索引是: " + findIndex);
+        }
+
+    }
+}
+
+```
+
+
+
+##### 2.3、找出数组中最大的元素
+
+```java
+public class FindMaxNum {
+    public static void main(String[] args) {
+        int[] ints = new int[]{10, 20, 30, 1, 0, 2, 45, 788, 45, 1, 5};
+
+        int maxIndex = 0;
+
+        for (int i = 1; i < ints.length; i++) {
+            if (ints[maxIndex] < ints[i]) {
+                maxIndex = i;
+            }
+        }
+
+        System.out.println("最大元素下标是: " + maxIndex +", 对应值是: " + ints[maxIndex]);
+
+    }
+}
+```
+
+
+
+##### 2.4、交换数组元素
+
+```java
+public class ArrayExchangeElement {
+    public static void main(String[] args) {
+        int[] ints = new int[]{1, 2, 3, 4};
+        // 将 ints数组中 2 和 3 交换位置
+
+        int temp = ints[2];
+        ints[2] = ints[1];
+        ints[1] = temp;
+
+        for (int i = 0; i < ints.length; i++) {
+            System.out.println(ints[i]);
+        }
+    }
+}
+
+```
+
+
+
+##### 2.5、数组扩容
+
+```java
+public class ArrayExpended {
+    public static void main(String[] args) {
+        int[] ints = new int[]{10, 20, 30};
+
+        // 将ints长度+1, 让ints[3] = 40;
+
+        int[] temp = new int[ints.length + 1];
+
+        for (int i = 0; i < ints.length; i++) {
+            temp[i] = ints[i];
+        }
+
+        ints = temp;
+
+        ints[3] = 40;
+
+        for (int i = 0; i < ints.length; i++) {
+            System.out.println(ints[i]);
+        }
+    }
+}
+
+```
+
+
+
+##### 2.6、数组反转
+
+```java
+public class ArrayReverse {
+    public static void main(String[] args) {
+        int[] ints1 = new int[]{10, 20, 30, 1, 0, 2, 45, 788, 45, 1, 5};
+        int[] ints2 = new int[]{10, 20, 30, 1, 0, 2, 45, 788, 45, 1, 5};
+
+        // 方式一
+        int[] temp = new int[ints1.length];
+
+        for (int i = 0; i < ints1.length; i++) {
+            temp[i] = ints1[ints1.length - 1 - i];
+        }
+        ints1 = temp;
+
+        for (int i = 0; i < ints1.length; i++) {
+            System.out.println(ints1[i]);
+        }
+
+
+        // 方式二
+
+        for (int i = 0; i < ints2.length / 2; i++) {
+            int t = ints2[i];
+            ints2[i] = ints2[ints2.length - 1 - i];
+            ints2[ints2.length - 1 - i] = t;
+        }
+
+        for (int i = 0; i < ints2.length; i++) {
+            System.out.println(ints2[i]);
+        }
+    }
+}
+```
+
+
+
+#### 4、做个Management System的crud
