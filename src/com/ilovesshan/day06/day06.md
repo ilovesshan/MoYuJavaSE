@@ -108,3 +108,86 @@
 
 + 数据结构和算法 [参考连接](!http://data.biancheng.net/intro/)
 
+##### 4、归并思路
+
++ 有两个按循序排列好的数组，要求将两个数组合并成一个数组，按照从小到大排
+
+  + 方法一
+
+    ```java
+    public class MergeArray {
+        public static void main(String[] args) {
+            int[] nums1 = {1, 2, 4, 8, 10, 18, 23,};
+            int[] nums2 = {3, 5, 6, 7, 8, 18};
+            int[] nums3 = new int[nums1.length + nums2.length];
+    
+            int i = 0;
+            int j = 0;
+    
+            while ((i < nums1.length) && (j < nums2.length)) {
+                if (nums1[i] < nums2[j]) {
+                    nums3[i + j] = nums1[i];
+                    i++;
+                } else {
+                    nums3[i + j] = nums2[j];
+                    j++;
+                }
+            }
+    
+            while (i < nums1.length) {
+                nums3[i + j] = nums1[i];
+                i++;
+            }
+    
+            while (j < nums2.length) {
+                nums3[i + j] = nums2[j];
+                j++;
+            }
+        }
+    }
+    ```
+
+    
+
+  + 方法二
+
+    ```java
+    public class MergeArray {
+        public static void main(String[] args) {
+            int[] nums1 = {1, 2, 4, 8, 10, 18, 23,};
+            int[] nums2 = {3, 5, 6, 7, 8, 18};
+            int[] nums3 = new int[nums1.length + nums2.length];
+    
+            int i = 0;
+            int j = 0;
+    
+            while ((i < nums1.length) || (j < nums2.length)) {
+                if (i == nums1.length) {
+                    nums3[i + j] = nums2[j];
+                    j++;
+                    continue;
+                }
+    
+                if (j == nums2.length) {
+                    nums3[i + j] = nums1[i];
+                    i++;
+                    continue;
+                }
+    
+                if (nums1[i] < nums2[j]) {
+                    nums3[i + j] = nums1[i];
+                    i++;
+                } else {
+                    nums3[i + j] = nums2[j];
+                    j++;
+                }
+            }
+        }
+    }
+    ```
+
+    
+
+##### 5、二维数组
+
+##### 6、杨辉三角
