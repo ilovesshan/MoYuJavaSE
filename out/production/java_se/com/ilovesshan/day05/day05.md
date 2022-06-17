@@ -287,6 +287,7 @@ public class ArrayReverse {
 
 ```java
 import java.util.Scanner;
+
 public class ManagementSystem {
     static int command = 0;
     static String[] names = new String[]{};
@@ -352,6 +353,12 @@ public class ManagementSystem {
                 }
             }
         }
+
+        String[] temp = new String[names.length - 1];
+        for (int i = 0; i < names.length-1; i++) {
+            temp[i] = names[i];
+        }
+        names = temp;
     }
 
     private static void update(String name, String beEdit) {
