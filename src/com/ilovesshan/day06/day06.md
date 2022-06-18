@@ -190,4 +190,84 @@
 
 ##### 5、二维数组
 
++ 知道用法，了解即可
+
+  ```java
+  public class DoubleDimensionalArray {
+      public static void main(String[] args) {
+  
+          // 初始化 给ints在堆空间中声明3个长度 二层长度没有明确规定、可以动态添加元素
+          int[][] ints = new int[3][];
+  
+          ints[0] = new int[]{1};
+          ints[1] = new int[]{1, 2};
+          ints[2] = new int[]{1, 2, 3};
+  
+  
+          // 遍历二维数组
+          for (int i = 0; i < ints.length; i++) {
+              for (int j = 0; j < ints[i].length; j++) {
+                  System.out.print(ints[i][j]);
+              }
+              System.out.println();
+          }
+  
+          System.out.println("***********************************************");
+  
+          int[][] ints1 = new int[2][2];
+          ints1[0] = new int[]{1, 2, 3, 4, 5};
+          ints1[1] = new int[]{1, 2};
+  
+  
+          // 遍历二维数组
+          for (int i = 0; i < ints1.length; i++) {
+              for (int j = 0; j < ints1[i].length; j++) {
+                  System.out.print(ints1[i][j]);
+              }
+              System.out.println();
+          }
+  
+  
+      }
+  
+  }
+  ```
+
+  
+
 ##### 6、杨辉三角
+
+```java
+public class YangHuiTriangle {
+    public static void main(String[] args) {
+        int layer = 10;
+
+        // 初始化二维数组(三角形)
+        int[][] triangle = new int[layer][];
+        for (int i = 0; i < triangle.length; i++) {
+            triangle[i] = new int[i + 1];
+        }
+
+        // 将两边全部填充1
+        for (int i = 0; i < triangle.length; i++) {
+            for (int j = 0; j <= i; j++) {
+                if (j == 0 || i == j) {
+                    triangle[i][j] = 1;
+                } else {
+                    triangle[i][j] = triangle[i - 1][j - 1] + triangle[i - 1][j];
+                }
+            }
+        }
+
+
+        for (int i = 0; i < triangle.length; i++) {
+            for (int j = 0; j < triangle[i].length; j++) {
+                System.out.print(triangle[i][j] + "\t");
+            }
+            System.out.println();
+        }
+    }
+}
+
+```
+
