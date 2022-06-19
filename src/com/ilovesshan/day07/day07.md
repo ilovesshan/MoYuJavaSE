@@ -306,3 +306,74 @@
   + 方法有明确要求要返回什么类型的数据、使用 return 返回即可、return之后这个方法也就不会再继续向后执行剩下的的代码了。
   + 方法没有明确要求要返回什么类型的数据、使用 return 关键字也可以阻止代码继续向后执行。
 
+##### 4.5、方法的递归调用
+
++ 方法在进行递归调用时、我们需要给予一个结束时机、否则会造成栈溢出。
+
++ 栈溢出原因
+
+  + 当我们调用一个方法时、再栈中就会压入一个方法执行栈、调用10次`todo方法`，就会压入10个`todo方法`执行栈。
+  + 犹豫栈空间也有限的、而下面代码中不断的调用`todo`最终栈装不下 所以就栈溢出了。
+
+  ```java
+  public class Recursive {
+      public static void main(String[] args) {
+          // 方法递归调用
+          todo();
+      }
+  
+      public static void todo() {
+          // 不断的调用自己，没有设置一个结束时机 最终会导致栈溢出 StackOverflowError
+          todo();
+          System.out.println("todo...");
+      }
+  
+  }
+  ```
+
++ 斐波那契数列
+
+  ```java
+  public class FibonacciNumbers {
+      public static void main(String[] args) {
+  
+          long numbers = fibonacciNumbers(10);
+          System.out.println(numbers);
+      }
+  
+  
+      // 0、1、1、2、3、5、8、13、21、34 第三项开始、后一个数是前两个数之和
+      public static long fibonacciNumbers(int number) {
+          if (number == 1 || number == 0) {
+              return number;
+          } else {
+              return fibonacciNumbers(number - 1) + fibonacciNumbers(number - 2);
+          }
+      }
+  }
+  
+  ```
+
+  
+
++ 数的阶乘
+
+  ```java
+  public class FactorialNumber {
+      public static void main(String[] args) {
+          // 数的阶乘 1*2*3*4*5*n
+          long number = factorialNumber(10);
+          System.out.println(number);
+      }
+  
+      public static long factorialNumber(int number) {
+          if (number > 1) {
+              return number * factorialNumber(number - 1);
+          } else return 1;
+      }
+  }
+  
+  ```
+
+  
+
