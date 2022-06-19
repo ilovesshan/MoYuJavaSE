@@ -377,3 +377,94 @@
 
   
 
+##### 4.6、方法重载
+
++ 方法重载(overload) 构成的条件
+
+  + 方法名称相同
+  + 和方法返回值没关系
+  + 方法形参不同(个数、位置、类型)
+
++ 看案例
+
+  ```java
+  public class OverLoadMethod {
+  
+      public double add(int a, int b) {
+          return a + b;
+      }
+  
+      public double add(double a, double b) {
+          return a + b;
+      }
+  
+      public double add(double a, int b) {
+          return a + b;
+      }
+  
+      public double add(int a, double b) {
+          return a + b;
+      }
+  
+  
+      public static void main(String[] args) {
+          OverLoadMethod loadMethod = new OverLoadMethod();
+  
+          System.out.println(loadMethod.add(10, 20));
+          System.out.println(loadMethod.add(10.0, 20.0));
+          System.out.println(loadMethod.add(10.0, 20));
+          System.out.println(loadMethod.add(10, 20.0));
+      }
+  }
+  
+  ```
+
+  
+
+##### 4.7、可变长参数
+
++ 可变长参数注意点
+
+  + 一个方法形参中、只能有一个可变长参数
+  + 可变长参数 只能放在方法形参的最后
+
++ 看案例
+
+  ```java
+  public class OverLoadMethod {
+      // 可变长参数
+      public double add(int... nums) {
+          // nums 本质是一个int[]
+          int res = 0;
+          for (int i = 0; i < nums.length; i++) {
+              res += i;
+          }
+          return res;
+      }
+  
+  
+      public static void main(String[] args) {
+          OverLoadMethod loadMethod = new OverLoadMethod();
+          System.out.println(loadMethod.add(10, 20, 30, 40, 50, 60));
+      }
+  }
+  
+  ```
+
+  
+
+
+
+##### 4.8、作用域
+
++ 作用域介绍：
+  + 在类中声明的变量叫做全局变量、可以在整个类中使用。
+  + 在类中成员方法中声明的变量叫做局部变量、只能在当前方法中使用。
+  + for循环中声明的变量也只能在当前代码块中使用。
++ 全局变量 可以不初始化，声明了就会有默认值
+  + byte、short、int、long 默认值 0
+  + char 默认值 空字符串
+  + boolean 默认值 false
+  + 引用数据类型 默认值 null
+
++ 局部变量必须初始化。
