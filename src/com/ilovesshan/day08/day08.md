@@ -294,3 +294,61 @@ public class StringMethods {
 
 
 #### 7、包装类和自动拆装箱
+
+##### 7.1、包装类
+
+| 基本类型 | 包装类    |
+| -------- | --------- |
+| byte     | Byte      |
+| short    | Short     |
+| int      | Integer   |
+| long     | Long      |
+| float    | Float     |
+| double   | Double    |
+| boolean  | Boolean   |
+| char     | Character |
+
+
+
+##### 7.2、自动拆装箱
+
+```java
+public class AutoTransfer {
+    public static void main(String[] args) {
+        // 左边是基本类型  右边是包装类型 称之为 自动装箱
+        int i1 = new Integer(10);
+        long l1 = new Long(10L);
+
+
+        // 左边是包装类型  右边是基本类型 称之为 自动拆箱
+        Integer i2 = 10;
+        Long l2 = 10L;
+    }
+}
+```
+
+##### 7.3、笔试题
+
+```java
+public class Work {
+    public static void main(String[] args) {
+        Integer i1 = 127;
+        Integer i2 = 127;
+        System.out.println(i1 == i2); // true 原理同String
+
+
+        Integer i3 = new Integer(127);
+        Integer i4 = new Integer(127);
+        System.out.println(i3 == i4); // false 原理同String
+
+
+        Integer i5 = 128;
+        Integer i6 = 128;
+        System.out.println(i5 == i6); // false
+        // Integer 内部有一个缓存类IntegerCache 缓存了 -128 - 127的数字
+        // 在这个范围之间直接从内存取、不在这个范围之间就需构建
+    }
+}
+
+```
+
