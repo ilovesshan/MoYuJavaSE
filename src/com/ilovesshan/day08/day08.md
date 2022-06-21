@@ -201,3 +201,96 @@ public class Car {
   ```
 
   
+
+#### 6、String类
+
+##### 6.1、构造器
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // String 构造器很多 可以去查看源码
+
+        String s1 = new String("abc");
+        String s2 = new String(new char[]{'a', 'b', 'c'});
+        String s3 = new String(new byte[]{97, 98, 99});
+        String s4 = new String(new StringBuilder("abc"));
+        String s5 = new String(new StringBuilder("abc"));
+        // ...
+
+
+        System.out.println(s1); // abc
+        System.out.println(s2); // abc
+        System.out.println(s3); // abc
+        System.out.println(s4); // abc
+        System.out.println(s5); // abc
+
+    }
+}
+
+```
+
+
+
+##### 6.2、内存分析
+
+```java
+public class Work {
+    public static void main(String[] args) {
+        String s1 = "abc";
+        String s2 = "abc";
+
+        String s3 = new String("abc");
+        String s4 = new String("abc");
+
+
+        System.out.println(s1 == s2); // true
+        System.out.println(s1 == s3); // false
+        System.out.println(s3 == s4); // false
+    }
+}
+```
+
+![image-20220621220648088](day08.assets/image-20220621220648088.png)
+
+##### 6.3、常用方法
+
++ 多查看`API文档`
++ 字符串是不可变的底层用了`private final char value[];`来存放。
++ 调用字符串的方法，而你所看到的结果并不是之前的字符串被修改了、而是在把之前字符串拷贝了一份，修改之后返回回来的。
+
+```java
+public class StringMethods {
+    public static void main(String[] args) {
+        String s = new String("hello world, good good learn java~");
+
+        // 长度 length()
+        System.out.println(s.length());
+
+        //  分割成字符串数组 split(分隔符)
+        String[] strings = s.split(" ");
+        for (String string : strings) {
+            System.out.print(string + "\t");
+        }
+        System.out.println();
+
+        // 小写 toLowerCase()
+        System.out.println(s.toLowerCase());
+
+        // 大写 toUpperCase()
+        System.out.println(s.toUpperCase());
+
+        // 截取 substring(开始索引, 结束索引)
+        System.out.println(s.substring(12));
+
+        // 替换 replace(规则, 替换值)
+        System.out.println(s.replace("java", "JAVA"));
+
+    }
+}
+
+```
+
+
+
+#### 7、包装类和自动拆装箱
