@@ -464,4 +464,72 @@ public class SuperLinked {
 
 
 
-#### 3、基于超级数组的队列和栈
+#### 3、基于超级链表实现的队列
+
+```java
+```
+
+```java
+```
+
+
+
+#### 4、基于超级链表实现的栈
+
+```java
+public class Stack {
+
+    SuperLinked mSuperLinked = new SuperLinked();
+
+    public void push(int data) {
+        mSuperLinked.add(data);
+    }
+
+    public void pop() {
+        mSuperLinked.remove(0);
+    }
+
+    public int peek() {
+        return mSuperLinked.get(0);
+    }
+
+    public boolean isEmpty() {
+        return mSuperLinked.getLength() == -1;
+    }
+
+
+    public String stackToString() {
+        return mSuperLinked.linkedToString();
+    }
+
+}
+
+```
+
+```java
+public class StackTest {
+    public static void main(String[] args) {
+        Stack stack = new Stack();
+
+        System.out.println(stack.isEmpty()); // true
+
+        stack.push(10);
+        stack.push(20);
+        stack.push(30);
+        stack.push(40);
+        stack.push(50);
+
+        System.out.println(stack.stackToString()); // [50,40,30,20,10]
+
+        stack.pop();
+        stack.pop();
+
+        System.out.println(stack.stackToString()); // [30,20,10]
+
+
+        System.out.println(stack.peek()); // 30
+
+        System.out.println(stack.isEmpty()); // false
+
+    }
+}
