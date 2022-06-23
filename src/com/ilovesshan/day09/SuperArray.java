@@ -1,7 +1,5 @@
 package com.ilovesshan.day09;
 
-import java.util.ArrayList;
-
 /**
  * Created with IntelliJ IDEA.
  *
@@ -32,7 +30,7 @@ public class SuperArray {
      */
     public void add(int data) {
         // 判断是否需要扩容
-        if (elements.length - 1 <= currentIndex + 1) {
+        if (elements.length <= currentIndex + 1) {
             grow();
         }
         currentIndex++;

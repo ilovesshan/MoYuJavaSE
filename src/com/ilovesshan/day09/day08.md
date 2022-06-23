@@ -48,8 +48,6 @@ public class Main {
 
 
 ```java
-package com.ilovesshan.day09;
-
 public class SuperArray {
 
     private int[] elements = null;
@@ -73,7 +71,7 @@ public class SuperArray {
      */
     public void add(int data) {
         // 判断是否需要扩容
-        if (elements.length - 1 <= currentIndex + 1) {
+        if (elements.length <= currentIndex + 1) {
             grow();
         }
         currentIndex++;
