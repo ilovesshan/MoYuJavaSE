@@ -28,12 +28,12 @@ public class SuperLinkedTest {
         System.out.println(superLinked.get(2));
 
         // 修改
-//        superLinked.set(0, 500);
-//        superLinked.set(1, 400);
+        superLinked.set(0, 500);
+        superLinked.set(1, 400);
 
         // 删除
-//        superLinked.remove(0);
-//        superLinked.remove(1);
+        superLinked.remove(0);
+        superLinked.remove(1);
 
         // 指定位置插入
         superLinked.add(2, 200);

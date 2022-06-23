@@ -219,6 +219,9 @@ public class SuperLinkedTest {
     public static void main(String[] args) {
 
         SuperLinked superLinked = new SuperLinked();
+        superLinked.set(0, -100002);
+
+        System.out.println(superLinked.linkedToString());
 
         // 增加
         superLinked.add(10);
@@ -330,13 +333,13 @@ public class SuperLinked {
      * @param data  数据
      */
     public void add(int index, int data) {
-        if (index < 0 || index > currentIndex) {
-            System.out.println("索引[" + index + "]检索异常");
-            return;
-        }
         // 头插入
         if (index == 0) {
             this.add(data);
+            return;
+        }
+        if (index < 0 || index > currentIndex) {
+            System.out.println("索引[" + index + "]检索异常");
             return;
         }
         // 其他位置插入
@@ -400,16 +403,23 @@ public class SuperLinked {
      * @param data  数据
      */
     public void set(int index, int data) {
+        Node currentNode = first;
+
+        if (index == 0) {
+            if (currentNode == null) {
+                first = new Node(data, null);
+                currentIndex++;
+                return;
+            } else {
+                first.setData(data);
+                return;
+            }
+        }
         if (index < 0 || index > currentIndex) {
             System.out.println("索引[" + index + "]检索异常");
             return;
         }
-        Node currentNode = first;
 
-        if (index == 0) {
-            first.setData(data);
-            return;
-        }
 
         for (int i = 0; i < index; i++) {
             currentNode = currentNode.getNext();
