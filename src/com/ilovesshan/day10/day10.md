@@ -522,6 +522,8 @@
   
   }
   
+  // 添加了Student成员属性 并添加getter和setter方法
+  
   // Teacher类中重写了clone方法
   @Override
   protected Object clone() throws CloneNotSupportedException {
