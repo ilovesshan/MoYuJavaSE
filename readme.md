@@ -71,3 +71,9 @@
   + 重写
   + 重写和重载区别
   + final 关键字
++ Object类相关方法
+  + hash
+  + toString
+  + equals
+  + finalized
+  + clone
