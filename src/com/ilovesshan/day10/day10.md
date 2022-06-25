@@ -291,3 +291,49 @@
 + 被final修饰的变量
   + 基本类型：值不能被改变
   + 引用类型：引用地址不能被改变
+
+#### 2、Object类相关方法
+
+##### 2.1、hash
+
++ `hash`是一种算法(散列算法)、输入一个随机值可以将这个随机值通过散列算法推算出一个固定长度的输出值。
+
++ `hash`算法特点
+
+  + 只能通过原文计算出`hash`值、而且每次都一样、不能通过`hash`计算出原文。
+  + 原文的细微变化能够引起`hash`巨大的变化。
+  + 好的hash算法不应该出现`hash`相同的情况(又称`hash碰撞`)。
+
++ `hash`用途
+
+  + 密码加密
+  + 文件加密
+
++ 常见`hash`算法
+
+  + `MD5` ：推算出128位(16字节)的散列值。
+
+    ```java
+    public class HashAlgorithm {
+        public static void main(String[] args) throws NoSuchAlgorithmException {
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            byte[] digest = md5.digest("ilovesshan".getBytes(StandardCharsets.UTF_8));
+            System.out.println(Arrays.toString(digest));
+            // [8, 3, 77, -46, -55, -95, 7, -70, -79, -52, 64, 68, 22, 127, 83, 2]
+        }
+    }
+    ```
+
+  + `SHA1`：推算出160位(20字节)的散列值。
+
+  + `SHA256`推：算出256位(32字节)的散列值。
+
+  + `SHA512`推：算出512位(64字节)的散列值。
+
+##### 2.2、toString
+
+##### 2.3、equals
+
+##### 2.4、finalize
+
+##### 2.5、clone
