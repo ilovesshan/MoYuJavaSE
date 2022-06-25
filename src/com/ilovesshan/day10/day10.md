@@ -161,3 +161,81 @@
     
 
 ##### 1.3、super 关键字
+
++ super 关键字一般用于，子类访问父类的成员属性或者方法时使用(遵循访问修饰符)。
+
+  ```java
+  public class Car {
+      String brand;
+      String color;
+  
+      public Car() {
+      }
+  
+      public Car(String brand, String color) {
+          this.brand = brand;
+          this.color = color;
+      }
+  
+  
+      public void start() {
+          System.out.println("汽车启动...");
+      }
+  
+      public void run() {
+          System.out.println("汽车跑起来了...");
+  
+      }
+      
+  }
+  
+  ```
+
+  
+
+  ```java
+  public class BmwCar extends Car {
+  
+      BmwCar() {
+          // 调用父类构造器
+          super("宝马", "白色");
+      }
+  
+      public void printCarInfo() {
+          // 访问父类成员属性
+          System.out.println(super.brand); // 宝马
+          System.out.println(super.color); // 白色
+  
+          // 访问父类成员方法
+          super.start(); // 汽车启动...
+          super.run(); // 汽车跑起来了...
+      }
+  }
+  ```
+
+  
+
+  ```java
+  public class CarTest {
+      public static void main(String[] args) {
+          BmwCar bmwCar = new BmwCar();
+          bmwCar.printCarInfo();
+          System.out.println("bmwCar.brand = " + bmwCar.brand); // 宝马
+          System.out.println("bmwCar.color = " + bmwCar.color); // 白色
+      }
+  }
+  ```
+
+  
+
+##### 1.4、super和this对比
+
++ `super`一般用于：子类访问父类的成员属性或者方法时使用。
++ `this`一般用于：访问当前类的成员属性或者方法时使用。
+
+|            | this                               | super                                                |
+| ---------- | ---------------------------------- | ---------------------------------------------------- |
+| 访问属性   | 访问本类属性，不存在继续向上层查找 | 访问父类属性，不存在继续向上层查找                   |
+| 访问方法   | 访问本类方法，不存在继续向上层查找 | 访问父类方法，不存在继续向上层查找                   |
+| 访问构造器 | 访问本类构造器，只能放在第一行     | 访问父类构造器，只能放在第一行、没找到不会向上层查找 |
+
