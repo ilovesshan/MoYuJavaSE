@@ -330,10 +330,236 @@
 
   + `SHA512`推：算出512位(64字节)的散列值。
 
-##### 2.2、toString
+##### 2.2、equals 
 
-##### 2.3、equals
++ `equals` 用于两者之间进行比较 ，看一个案例
+
+  ```java
+  public class EqualsMethods {
+      private String name;
+  
+  
+      public static void main(String[] args) {
+          String s1 = "s1";
+          String s2 = "s1";
+          String s3 = new String("s1");
+  
+          System.out.println("s1.equals(s2) = " + s1.equals(s2)); // true
+          
+          System.out.println("s1.equals(s2) = " + s1 == s3); // false
+          
+          System.out.println("s1.equals(s2) = " + s1.equals(s3)); // true
+          // 很多人不理解, s3是new出来的、为啥和s1相等? equals到底比较什么?? 不妨去看看String中的equals方法具体实现
+      }
+  }
+  ```
+
+  + Object类的`equals`方法
+
+    ```java
+    public boolean equals(Object obj) {
+        return (this == obj);
+    }
+    ```
+
+    
+
+  + String类 重写了`equals`方法
+
+    ```java
+    /**
+         * Compares this string to the specified object.  The result is {@code
+         * true} if and only if the argument is not {@code null} and is a {@code
+         * String} object that represents the same sequence of characters as this
+         * object.
+         *
+         * @param  anObject
+         *         The object to compare this {@code String} against
+         *
+         * @return  {@code true} if the given object represents a {@code String}
+         *          equivalent to this string, {@code false} otherwise
+         *
+         * @see  #compareTo(String)
+         * @see  #equalsIgnoreCase(String)
+         */ 
+    public boolean equals(Object anObject) {
+        if (this == anObject) {
+            return true;
+        }
+        if (anObject instanceof String) {
+            String anotherString = (String)anObject;
+            int n = value.length;
+            if (n == anotherString.value.length) {
+                char v1[] = value;
+                char v2[] = anotherString.value;
+                int i = 0;
+                while (n-- != 0) {
+                    if (v1[i] != v2[i])
+                        return false;
+                    i++;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    ```
+
+    
+
++ `equals` 和 `==` 区别
+
+  + `==` 可以比较基本数据类型也可以比较引用数据类型
+    + 比较基本数据类型：比较的是具体的值
+    + 比较引用数据类型：比较的是引用地址
+  + `equals` 只能用于比较引用类型
+    + `equals`  没有被重写：底层是基于`==` 实现的、可与看`Object`源码实现
+    + `equals`  被重写：就按照重写的逻辑来进行比较
+
++ 案例有一个`Teacher`类、拥有姓名（`name`）和工号（`orderNo`）属性
+
+  + 创建两个`Teacher`实例、如果姓名和工号都相同就表示是一个人
+  + 重写`equals`方法实
+
+  ```java
+  public class Teacher {
+      String name;
+      String orderNo;
+  
+      public Teacher(String name, String orderNo) {
+          this.name = name;
+          this.orderNo = orderNo;
+      }
+  
+      @Override
+      public boolean equals(Object o) {
+          if (o == this) return true;
+  
+          if (o instanceof Teacher) {
+              Teacher t = (Teacher) o;
+              if (Objects.equals(t.name, this.name) && Objects.equals(t.orderNo, this.orderNo)) return true;
+              return false;
+          }
+          return false;
+  
+      }
+  
+      public static void main(String[] args) {
+          Teacher t1 = new Teacher("liLei", "111");
+          Teacher t2 = new Teacher("liLei", "112");
+          Teacher t3 = new Teacher("liLei", "111");
+  
+          System.out.println("t1.equals(t2) = " + t1.equals(t2)); // false
+          System.out.println("t1.equals(t3) = " + t1.equals(t3)); // true
+  
+      }
+  
+  }
+  
+  ```
+
+  
+
+##### 2.3、toString
+
++ 先看一段代码、紧接着往后说
+
+  ```java
+  public class ToStringMethod {
+      public static void main(String[] args) {
+          // 这里借用一手 teacher 类来举例
+  
+          Teacher t1 = new Teacher("liLei", "1001");
+          System.out.println(t1); // com.ilovesshan.day10.Teacher@e2d56bf
+  
+          String s1 = "1001";
+          System.out.println(s1); // 1001
+  
+      }
+  }
+  
+  ```
+
+  + 啥意思啊？teacher打印出来是这个东西？？看了下面代码你就明白了！！
+  + Teacher类也是Object的子类哈
+
+  + `Object` 类中的`toString` 方法
+
+    ```java
+    public String toString() {
+        //     全限定@16进制的hashCode
+        return getClass().getName() + "@" + Integer.toHexString(hashCode());
+    }
+    ```
+
+  + 那String为啥不打印全限定@16进制的hashCode?? 点进去源码看看
+
+  + 原来是、String重写了Object类的toString方法
+
+    ```java
+    public String toString() {
+        return this;
+    }
+    ```
+
+    
 
 ##### 2.4、finalize
 
++ finalize 当一个类不再被使用时、JVM进行垃圾回收时会调用finalize方法。
++ 由于GC的自动回收机制，因而并不能保证finalize方法会被及时地执行（垃圾对象的回收时机具有不确定性），也不能保证它们会被执行(程序由始至终都未触发垃圾回收)。
++ jgk9之后已经废弃这个方法了。
+
 ##### 2.5、clone
+
++ clone方法是浅克隆、深潜克隆后面详细讲：
+
++ 看个小案例吧
+
+  ```java
+  //  Teacher类需要实现Cloneable接口
+  public class Teacher  implements  Cloneable{
+  
+  }
+  
+  // Teacher类中重写了clone方法
+  @Override
+  protected Object clone() throws CloneNotSupportedException {
+      return super.clone();
+  }
+  ```
+
+  ```java
+  public class ToStringMethod {
+      public static void main(String[] args) throws CloneNotSupportedException {
+          // 这里借用一手 teacher 类来举例
+  
+          Teacher t1 = new Teacher("liLei", "1001");
+          System.out.println(t1); // com.ilovesshan.day10.Teacher@e2d56bf
+  
+          String s1 = "1001";
+          System.out.println(s1); // 1001
+  
+  
+          Teacher t2 = new Teacher("liLei", "112");
+          t2.setStudent(new Student());
+          Teacher t3 = (Teacher) t2.clone();
+  
+          t2.name = "tom";
+          t2.student.name ="lucy";
+  
+          System.out.println(t2.name); // tom
+          System.out.println(t3.name); // liLei
+          System.out.println(t2.student.name); // lucy
+          System.out.println(t3.student.name); // lucy
+  
+          System.out.println(t2.name == t3.name); // true
+          System.out.println(t2.orderNo == t3.orderNo);// true
+          System.out.println(t2.equals(t3)); // true
+  
+      }
+  }
+  
+  ```
+
+  
