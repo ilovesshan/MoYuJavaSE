@@ -385,3 +385,169 @@
   
 
 #### 4、策略设计模式
+
++ `User类`
+
+  ```java
+  public class User /*implements Comparable */ {
+      private String name;
+      private int age;
+      private double height;
+  
+      public User() {
+      }
+  
+      public User(String name, int age, double height) {
+          this.name = name;
+          this.age = age;
+          this.height = height;
+      }
+  
+      public String getName() {
+          return name;
+      }
+  
+      public void setName(String name) {
+          this.name = name;
+      }
+  
+      public int getAge() {
+          return age;
+      }
+  
+      public void setAge(int age) {
+          this.age = age;
+      }
+  
+      public double getHeight() {
+          return height;
+      }
+  
+      public void setHeight(double height) {
+          this.height = height;
+      }
+  
+      @Override
+      public String toString() {
+          return "User{" +
+                  "name='" + name + '\'' +
+                  ", age=" + age +
+                  ", height=" + height +
+                  '}';
+      }
+  
+  //    @Override
+  //    public Integer compare(Comparable o) {
+  //        if (o instanceof User) {
+  //            User user = (User) o;
+  //            return this.getAge() - user.getAge();
+  //        }
+  //        return null;
+  //    }
+  }
+  
+  ```
+
+  
+
++ `UserSortUtils 工具类`
+
+  ```java
+  public class UserSortUtils {
+  
+      public void sort(User[] users, Comparable comparable) {
+          for (int i = 0; i < users.length - 1; i++) {
+              for (int j = 0; j < users.length - 1 - i; j++) {
+                  if (comparable.compare(users[j], users[j + 1]) > 0) {
+                      // 交换顺序
+                      User temp = users[j];
+                      users[j] = users[j + 1];
+                      users[j + 1] = temp;
+                  }
+              }
+          }
+      }
+  }
+  ```
+
+  
+
++ `Comparable接口类`
+
+  ```java
+  public interface Comparable {
+      // Integer compare(Comparable comparable);
+  
+      Integer compare(Object o1, Object o2);
+  }
+  
+  ```
+
+  
+
++ 实现了 `Comparable`接口的 `AgeSort类`
+
+  ```java
+  public class AgeSort implements Comparable {
+      @Override
+      public Integer compare(Object o1, Object o2) {
+          if (o1 instanceof User && o2 instanceof User) {
+              User u1 = (User) o1;
+              User u2 = (User) o2;
+  
+              return u1.getAge() - u2.getAge();
+          }
+          return null;
+      }
+  }
+  ```
+
+  
+
++ 实现了 `Comparable`接口的 `HeightSort类`
+
+  ```java
+  public class HeightSort implements Comparable {
+      @Override
+      public Integer compare(Object o1, Object o2) {
+          if (o1 instanceof User && o2 instanceof User) {
+              User u1 = (User) o1;
+              User u2 = (User) o2;
+  
+              return (int) (u1.getHeight() - u2.getHeight());
+          }
+          return null;
+      }
+  }
+  
+  ```
+
+  
+
++ `测试类`
+
+  ```java
+  public class Main {
+      public static void main(String[] args) {
+          // 创建三个User对象、把他们放入到users 数组中
+          User jack = new User("jack", 10, 156);
+          User tom = new User("tom", 20, 176);
+          User lucy = new User("lucy", 14, 183);
+  
+          User[] users = new User[]{jack, tom, lucy};
+  
+          // 1、对users数组按照年龄进行排序
+          new UserSortUtils().sort(users, new AgeSort());
+          System.out.println(Arrays.toString(users));
+          // [User{name='jack', age=10, height=156.0}, User{name='lucy', age=14, height=183.0}, User{name='tom', age=20, height=176.0}]
+  
+  
+          // 2、对users数组按照身高进行排序
+          new UserSortUtils().sort(users, new HeightSort());
+          System.out.println(Arrays.toString(users));
+          // [User{name='jack', age=10, height=156.0}, User{name='tom', age=20, height=176.0}, User{name='lucy', age=14, height=183.0}]
+      }
+  }
+  ```
+
+  
