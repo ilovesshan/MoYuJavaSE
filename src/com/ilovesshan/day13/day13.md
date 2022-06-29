@@ -134,10 +134,9 @@ public class User {
   Animal构造器代码执行...
   Cat实例代码块执行...
   Cat构造器代码执行...
-  Disconnected from th
   ```
-
   
+
 
 #### 2、静态成员和普通成员
 
@@ -605,5 +604,77 @@ TAG
 50
 default class anem
 common class name
+```
+
+
+
+#### 4、单例模式
+
++ 让一个类、有且只有一个实例存在，每次获取到的类的实例都是同一个。
+
+##### 4.1、饿汉式
+
++ 饿汉式：顾名思义就是很饿的意思、我上来就直接`new` 一个对象实例。
++ 饿汉模式在类被初始化时就已经在内存中创建了对象，以空间换时间。
+
+```java
+public class HungrySingletonMode {
+    private static final HungrySingletonMode instance = new HungrySingletonMode();
+
+    private HungrySingletonMode() {
+    }
+
+    public static HungrySingletonMode getInstance() {
+        return instance;
+    }
+
+}
+```
+
+
+
+##### 4.2、懒汉式
+
++ 懒汉式：就是很懒的意思，你不使用那我就不创建实例，使用时再创建实例，但是在多线程下有线程安全问题。
++ 懒汉模式在方法被调用后才创建对象，以时间换空间，在多线程环境下存在风险。
+
+```java
+public class LazySingletonMode {
+    private static LazySingletonMode instance = null;
+
+    private LazySingletonMode() {
+    }
+
+    public static LazySingletonMode getInstance() {
+        if (instance == null) {
+            instance = new LazySingletonMode();
+        }
+        return instance;
+    }
+
+}
+```
+
+
+
+##### 4.3、基于内部类的单例模式
+
++ 外部类加载时、并不需要加载内部类，只有调用 `getInstance` 才加载内部类，故不占内存。
++ 内部类是一个静态内部类、第一次加载就会创建 `InnerClassSingletonMode` 实例，这种方法不仅能确保线程安全，也能保证单例的唯一性，同时也延迟了单例的实例化。
+
+```java
+public class InnerClassSingletonMode {
+
+    private InnerClassSingletonMode() {
+    }
+
+    public static InnerClassSingletonMode getInstance() {
+        return InnerClassSingletonModeHolder.instance;
+    }
+
+    private static class InnerClassSingletonModeHolder {
+        private static final InnerClassSingletonMode instance = new InnerClassSingletonMode();
+    }
+}
 ```
 
