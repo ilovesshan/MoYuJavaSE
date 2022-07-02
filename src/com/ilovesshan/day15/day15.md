@@ -357,7 +357,95 @@ public class MyCalendar {
   }
   ```
 
+
+
+#### 4、各种时间日期互相转换
+
++ `Date` 和 `Instant` 转换
+
+  ```java
+  public class Main {
+      public static void main(String[] args) {
+          // Date 和 Instant 互相转换
+  
+          Date date = new Date();
+          // Date => Instant
+          Instant instant = date.toInstant();
+  
+          // Instant => Date
+          Date date1 = Date.from(instant);
+  
+      }
+  }
+  
+  ```
+
   
 
++ `Date` 和 `本地时间(LocalDateTime)` 转换
 
+  ```java
+  import java.time.Instant;
+  import java.time.LocalDateTime;
+  import java.time.ZoneOffset;
+  import java.util.Date;
+  import java.util.TimeZone;
+  
+  public class Main {
+      public static void main(String[] args) {
+          Date date = new Date(); 
+          Instant instant = date.toInstant();
+          LocalDateTime localDateTime = LocalDateTime.now();
+  
+  
+          // Date 和 本地时间(LocalDateTime) 互相转换
+  
+          // Date => LocalDateTime
+          // Date => Instant => LocalDateTime
+          Instant instant1 = date.toInstant();
+          LocalDateTime.ofInstant(instant1, TimeZone.getDefault().toZoneId());
+  
+          // LocalDateTime => Date
+          // LocalDateTime => Instant => Date
+  
+          Instant instant2 = localDateTime.toInstant(ZoneOffset.UTC);
+          Date from = Date.from(instant2);
+      }
+  }
+  
+  ```
 
+  
+
++ `Instant`  和 `本地时间` 转换
+
+  ```java
+  import java.time.Instant;
+  import java.time.LocalDateTime;
+  import java.time.ZoneOffset;
+  import java.util.Date;
+  import java.util.TimeZone;
+  
+  public class Main {
+      public static void main(String[] args) {
+  
+          Date date = new Date(); 
+          Instant instant = date.toInstant();
+          LocalDateTime localDateTime = LocalDateTime.now();
+  
+          // Instant 和 本地时间(LocalDateTime) 互相转换
+  
+          // Instant => LocalDateTime
+          LocalDateTime.ofInstant(instant, TimeZone.getDefault().toZoneId());
+  
+          // LocalDateTime => Instant
+          // 方法1
+          localDateTime.toInstant(ZoneOffset.UTC);
+          // 方法2
+          localDateTime.atOffset(ZoneOffset.UTC).toInstant();
+      }
+  }
+  
+  ```
+
+  
