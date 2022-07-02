@@ -145,3 +145,219 @@ public class MyCalendar {
 
 
 
+##### 3.3、Instant
+
++ `Instant` 表示时时间上的某一个点、`Instant` 对象和时间戳是一一对应的。
+
++ `Instant` 类是不可变的和线程安全的。
+
++ `Instant` 类 一般处理 时间戳相关问题，不处理 年月日这种单位。
+
+  ```java
+  import java.time.Duration;
+  import java.time.Instant;
+  
+  public class MyInstant {
+      public static void main(String[] args) {
+  
+          Instant now = Instant.now();
+  
+          long milli = Instant.now().toEpochMilli();
+          // 获取时间戳 1656722851963
+          System.out.println("milli = " + milli);
+  
+          // now = 2022-07-02T00:40:33.317Z UTC时间 但是和标准的北京时间相差 8h
+          System.out.println("now = " + now);
+  
+          // 加 8h
+          Instant now1 = now.plusSeconds(60 * 60 * 8);
+          // now1 = 2022-07-02T08:40:33.317Z  标准时间
+          System.out.println("now1 = " + now1);
+  
+          // 加 8h
+          Instant now2 = now.plus(Duration.ofHours(8));
+          // now2 = 2022-07-02T08:40:33.317Z  标准时间
+          System.out.println("now2 = " + now2);
+  
+  
+          // 减 8h
+          Instant now3 = now1.minus(Duration.ofHours(8));
+          System.out.println("now3 = " + now3);
+  
+      }
+  }
+  
+  ```
+
+  
+
+##### 3.4、本地时间
+
++ LocalDate
+
+  + `LocalDate` 是一个不可变的类、并且是线程安全的。
+  + `LocalDate`是一个不可变的日期时间对象，表示日期，通常被视为年月日。 也可以访问其他日期字段，例如日期，星期几和星期。
+
+  ```java
+  import java.time.LocalDate;
+  import java.time.Period;
+  
+  public class MyLocalDate {
+      public static void main(String[] args) {
+  
+          LocalDate localDate = LocalDate.now();
+          // localDate = 2022-07-02
+          System.out.println("localDate = " + localDate);
+  
+          // 当前时间基础上 加10年
+          LocalDate localDate1 = localDate.plus(Period.ofYears(10));
+          // 当前时间基础上 减10年
+          LocalDate localDate2 = localDate.minus(Period.ofYears(10));
+  
+          //localDate1 = 2032-07-02
+          System.out.println("localDate1 = " + localDate1);
+          // localDate2 = 2012-07-02
+          System.out.println("localDate2 = " + localDate2);
+  
+          // LocalDate.of() 返回一个LocalDate 对象
+          LocalDate date = LocalDate.of(2022, 7, 2);
+          // date = 2022-07-02
+          System.out.println("date = " + date);
+  
+          // 获取 年 月 日
+          System.out.println(date.getYear());
+          System.out.println(date.getDayOfMonth());
+          System.out.println(date.getDayOfMonth());
+         
+      }
+  }
+  
+  ```
+
+  
+
++ LocalTime
+
+  + `LocalTime` 是一个不可变的类、并且是线程安全的。
+
+  + `LocalTime` 是一个不可变的日期时间对象，代表一个时间，通常被看作是时 - 分 - 秒。 时间表示为纳秒精度。 
+
+  + 例如，值“13：45.30.123456789”可以存储在`LocalTime
+
+    ```java
+    import java.time.LocalTime;
+    import java.time.temporal.ChronoUnit;
+    public class MyLocalTime {
+        public static void main(String[] args) {
+            LocalTime now = LocalTime.now();
+            // now = 09:09:46.339
+            System.out.println("now = " + now);
+    
+            // 加 2h
+            LocalTime plus = now.plus(2,ChronoUnit.HOURS);
+            // 11:13:06.278
+            System.out.println(plus);
+    
+            // 减 2h
+            LocalTime minus = now.minus(2,ChronoUnit.HOURS);
+            // 7:13:06.278
+            System.out.println(minus);
+    
+    
+            LocalTime time = LocalTime.of(12, 12, 12);
+            // time = 12:12:12
+            System.out.println("time = " + time);
+    
+            // 获取 时分秒
+            System.out.println(now.getHour());
+            System.out.println(now.getMinute());
+            System.out.println(now.getSecond());
+    
+        }
+    }
+    
+    ```
+
+    
+
++ LocalDateTime
+
+  + `LocalDateTime` 代表日期时间，通常被视为年 - 月 - 日 - 时 - 分 - 秒。 
+
+  + 也可以访问其他日期和时间字段，例如日期，星期几和星期。 时间表示为纳秒精度。
+
+  + 这个类是不可变的和线程安全的。
+
+    ```java
+    import java.time.LocalDateTime;
+    
+    public class MyLocalDateTime {
+        public static void main(String[] args) {
+    
+    
+            LocalDateTime localDateTime = LocalDateTime.now();
+            // localDateTime = 2022-07-02T09:16:58.473
+            System.out.println("localDateTime = " + localDateTime);
+    
+            // 加 10天
+            LocalDateTime localDateTime1 = localDateTime.plusDays(10);
+            // 2022-07-12T09:17:52.622
+            System.out.println(localDateTime1);
+            
+            // 其他用法 和 LocalDate、LocalTime 很类似
+        }
+    }
+    
+    ```
+
+    
+
++ DateTimeFormatter
+
+  + 时间日期 格式化器，格式化器用于打印和解析日期时间对象。
+
+  ```java
+  import java.time.LocalDate;
+  import java.time.LocalDateTime;
+  import java.time.LocalTime;
+  import java.time.format.DateTimeFormatter;
+  
+  public class MyDateTimeFormatter {
+      public static void main(String[] args) {
+          // 定义格式化规则
+          DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+          DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("HH时mm分ss秒");
+          DateTimeFormatter formatter3 = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH时mm分ss秒");
+  
+          LocalDate localDate = LocalDate.now();
+          LocalTime localTime = LocalTime.now();
+          LocalDateTime localDateTime = LocalDateTime.now();
+  
+          // 格式化 format
+          String s1 = localDate.format(formatter1);
+          String s2 = localTime.format(formatter2);
+          String s3 = localDateTime.format(formatter3);
+  
+          System.out.println("s1 = " + s1); // 2022年07月02日
+          System.out.println("s2 = " + s2); // 09时24分51秒
+          System.out.println("s3 = " + s3); // 2022年07月02日 09时24分51秒
+  
+          // 解析 parse 需要按照规则解析
+          
+          // 2022-07-02
+          System.out.println(LocalDate.parse("2022年07月02日", formatter1)); 
+          
+          // 09:24:51
+          System.out.println(LocalTime.parse("09时24分51秒", formatter2)); 
+      
+          //2022-07-02T09:24:51
+          System.out.println(LocalDateTime.parse("2022年07月02日 09时24分51秒", formatter3)); 
+          
+      }
+  }
+  ```
+
+  
+
+
+

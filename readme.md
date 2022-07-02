@@ -124,3 +124,4 @@
 + 常用日期时间类
     + Date
     + Calendar
+    + Instant
