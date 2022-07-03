@@ -337,3 +337,95 @@ User's current working directory
 
 #### 6、StringBuffer和StringBuilder
 
++ `StringBuffer`和 `StringBuilder` 都i是可变长的字符序列。
+
+  + 他们之间的用法Api 用基本相同。
+
+  +  不同点是：
+    + `StringBuffer` 是线程安全的, 但是执行效率没有 `StringBuilder` 高。
+    + 相反 `StringBuilder` 是线程不安全的, 所以执行效率比 `StringBuffer` 高。
+
++ 举个例子看看基本用法
+
+  ```java
+  public class StringBuilderAndStringBuilder {
+      public static void main(String[] args) {
+          StringBuilder builder = new StringBuilder();
+          // 追加
+          builder.append("a").append("b").append("c");
+          System.out.println(builder);
+          // 指定位置插入
+          builder.insert(0,"A");
+          System.out.println(builder);
+          // 查找
+          int i1 = builder.indexOf("b");
+          System.out.println(i1);
+  
+  
+          StringBuffer buffer = new StringBuffer();
+          // 追加
+          buffer.append("a").append("b").append("c");
+          System.out.println(buffer);
+          // 指定位置插入
+          buffer.insert(0,"A");
+          System.out.println(builder);
+          // 查找
+          int i2 = buffer.indexOf("b");
+          System.out.println(i2);
+      }
+  }
+  ```
+
+  
+
++ 比较 `StringBuffer`、 `StringBuilder `、 `String` 拼接性能
+
+  ```java
+  public class StringBuilderAndStringBuilder {
+      public static void main(String[] args) {
+          StringBuilder builder = new StringBuilder();
+          StringBuffer buffer = new StringBuffer();
+          String str = "";
+  
+          int count = 10000;
+  
+  
+          long start = System.currentTimeMillis();
+  
+          for (int i = 0; i < count; i++) {
+              builder.append(i);
+          }
+          long end = System.currentTimeMillis();
+          System.out.println("StringBuilder 拼接" + count + "条数据耗时：" + (end - start));
+  
+  
+          start = System.currentTimeMillis();
+  
+          for (int i = 0; i < count; i++) {
+              buffer.append(i);
+          }
+          end = System.currentTimeMillis();
+          System.out.println("StringBuffer 拼接" + count + "条数据耗时：" + (end - start));
+  
+  
+          start = System.currentTimeMillis();
+  
+          for (int i = 0; i < count; i++) {
+              str += Integer.toString(i);
+          }
+          end = System.currentTimeMillis();
+          System.out.println("String 拼接" + count + "条数据耗时：" + (end - start));
+  
+      }
+  }
+  
+  StringBuilder 拼接10000条数据耗时：2
+  StringBuffer 拼接10000条数据耗时：1
+  String 拼接10000条数据耗时：319
+  
+  StringBuilder 拼接100000条数据耗时：12
+  StringBuffer 拼接100000条数据耗时：6
+  String 拼接100000条数据耗时：17531
+  ```
+
+  
