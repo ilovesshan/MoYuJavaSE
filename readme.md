@@ -125,3 +125,12 @@
     + Date
     + Calendar
     + Instant
+
+### JavaSE 摸鱼第16天...
+
++ Math类
++ BigDecimal类
++ Random类
++ Arrays类
++ System类
++ StringBuffer和StringBuilder
