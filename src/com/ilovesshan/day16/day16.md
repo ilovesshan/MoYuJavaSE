@@ -215,7 +215,125 @@
 
 #### 4、Arrays类
 
++ `Arrays`类 主要提供了：排序、二分查找、数组比较、格式化数组等等常用的方法。
+
+  ```java
+  public class ArraysTest {
+      public static void main(String[] args) {
+          int[] ints1 = {10, 50, 30, 12, 45, 45, 45, 1};
+          int[] ints2 = {10, 50, 30, 12, 45, 45, 45, 10};
+  
+          // 比较
+          System.out.println(Arrays.equals(ints1, ints2)); // false
+  
+          // 排序
+          Arrays.sort(ints1);
+  
+          // 二分查找
+          int searchIndex = Arrays.binarySearch(ints1, 50);
+          System.out.println(searchIndex);
+  
+          // 格式化打印
+          System.out.println(Arrays.toString(ints1)); // false
+      }
+  }
+  ```
+
++ 测试 `Arrays.sort()` 的排序时间
+
+  ```java
+  public class ArraysSortTest {
+      public static void main(String[] args) {
+          int count = 10000000;
+          int[] arr = new int[count];
+  
+          long start = System.currentTimeMillis();
+          for (int i = 0; i < count; i++) {
+              arr[i] = new Random().nextInt();
+          }
+          Arrays.sort(arr);
+  
+          long end = System.currentTimeMillis();
+  
+          System.out.println("排序" + count + "条数据耗时：" + (end - start));
+  
+  
+          // 排序10000条数据耗时：14
+          // 排序1000000条数据耗时：188
+          // 排序10000000条数据耗时：1808
+          // 排序100000000条数据耗时：17113
+      }
+  }
+  
+  ```
+
+  
+
 #### 5、System类 
+
+```java
+import java.util.Map;
+public class SystemTest {
+    public static void main(String[] args) {
+        // 打印/输出 数据
+        System.out.println();
+
+        // 当前时间的毫秒数
+        System.currentTimeMillis();
+
+        // 打系统属性
+        System.out.println(System.getProperty("java.version"));
+        System.out.println(System.getProperty("java.home"));
+        System.out.println(System.getProperty("java.class.version"));
+        System.out.println(System.getProperty("java.class.path"));
+        System.out.println(System.getProperty("os.name"));
+        System.out.println(System.getProperty("os.version"));
+        System.out.println(System.getProperty("user.home"));
+
+        // 打印系统环境的一些信息
+        Map<String, String> map = System.getenv();
+        System.out.println(map.toString());
+    }
+}
+```
+
++ `System.getProperty()` 对于的key信息
+
+```tex
+System properties. The following properties are guaranteed to be defined:
+java.version
+Java version number
+java.vendor
+Java vendor specific string
+java.vendor.url
+Java vendor URL
+java.home
+Java installation directory
+java.class.version
+Java class version number
+java.class.path
+Java classpath
+os.name
+Operating System Name
+os.arch
+Operating System Architecture
+os.version
+Operating System Version
+file.separator
+File separator ("/" on Unix)
+path.separator
+Path separator (":" on Unix)
+line.separator
+Line separator ("\n" on Unix)
+user.name
+User account name
+user.home
+User home directory
+user.dir
+User's current working directory
+```
+
+
 
 #### 6、StringBuffer和StringBuilder
 
