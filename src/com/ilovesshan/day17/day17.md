@@ -198,4 +198,316 @@
 
   
 
-#### 3、捕获异常
+#### 3、自定义异常
+
++ 在实际的开发中针对某些业务上的逻辑、我们可能需要一些特殊的异常、那么为我们可以自定义异常来满足需求。
+
++ 继承 `异常` 类
+
+  + 开发时异常继承 `Exception`
+  + 运行时异常继承 `RuntimeException`
+
++ 做一个简单的登录案例吧
+
+  + 如果用户名错误抛出自定义异常 `UserNameErrorException`
+  + 如果密码错误抛出自定义异常 `PssswordErrorException`
+
+  ```java
+  import java.util.Scanner;
+  
+  public class UserLogin {
+      public static void main(String[] args) {
+          try {
+              userLoginHandler();
+          } catch (Exception e) {
+              e.printStackTrace();
+              // 打印异常的错误信息
+              System.out.println(e.getMessage());
+          }
+  
+      }
+  
+      private static void userLoginHandler() {
+          Scanner scanner = new Scanner(System.in);
+  
+          System.out.print("请输入用户名: ");
+          String username = scanner.next();
+  
+  
+          System.out.print("请输入密码: ");
+          String password = scanner.next();
+  
+          if (!"admin".equals(username)) {
+              throw new UserNameErrorException("用户名错误");
+          }
+  
+          if (!"123456".equals(password)) {
+              throw new UserNameErrorException("密码错误");
+          }
+  
+          System.out.println("login success~");
+      }
+  }
+  
+  
+  ```
+
+  
+
+  ```tex
+  Connected to the target VM, address: '127.0.0.1:62677', transport: 'socket'
+  请输入用户名: admin
+  请输入密码: 1234
+  密码错误
+  com.ilovesshan.day17.UserNameErrorException: 密码错误
+  at com.ilovesshan.day17.UserLogin.userLoginHandler(UserLogin.java:40)
+  at com.ilovesshan.day17.UserLogin.main(UserLogin.java:15)
+  
+  Process finished with exit code 0
+  
+  
+  
+  Connected to the target VM, address: '127.0.0.1:62677', transport: 'socket'
+  请输入用户名: test
+  请输入密码: 123456
+  用户名错误
+  com.ilovesshan.day17.UserNameErrorException: 用户名错误
+  at com.ilovesshan.day17.UserLogin.userLoginHandler(UserLogin.java:36)
+  at com.ilovesshan.day17.UserLogin.main(UserLogin.java:15)
+  Disconnected from the target VM, address: '127.0.0.1:62677', transport: 'socket'
+  
+  Process finished with exit code 0
+  ```
+
+  
+
+  
+
+  ```java
+  public class UserNameErrorException extends RuntimeException {
+      private String message;
+      private int code;
+  
+      public UserNameErrorException() {
+      }
+  
+      public UserNameErrorException(String message) {
+          this.message = message;
+      }
+  
+      public UserNameErrorException(int code, String message) {
+          super(message);
+          this.code = code;
+      }
+  
+      @Override
+      public String getMessage() {
+          return message;
+      }
+  
+      public void setMessage(String message) {
+          this.message = message;
+      }
+  
+      public int getCode() {
+          return code;
+      }
+  
+      public void setCode(int code) {
+          this.code = code;
+      }
+  }
+  
+  class PasswordErrorException extends RuntimeException {
+      private String message;
+      private int code;
+  
+      public PasswordErrorException() {
+      }
+  
+      public PasswordErrorException(String message) {
+          this.message = message;
+      }
+  
+      public PasswordErrorException(int code, String message) {
+          super(message);
+          this.code = code;
+      }
+  
+      @Override
+      public String getMessage() {
+          return message;
+      }
+  
+      public void setMessage(String message) {
+          this.message = message;
+      }
+  
+      public int getCode() {
+          return code;
+      }
+  
+      public void setCode(int code) {
+          this.code = code;
+      }
+  }
+  
+  ```
+
+  
+
+#### 4、抛出和捕获异常
+
+##### 4.1、抛出异常
+
++ `throw`  和 `throws` 关键字
+
+  + `throw` 是使用在：方法体中
+
+  + `throws`  是使用在：方法签名后
+
++ 使用  `throws` 抛出异常可以提高代码的简洁性和阅读性、但是实际开发中不推荐。
+
+  ```java
+  public class ThrowAndThrows {
+      
+      // `throw` 是使用在：方法体中
+      public static void t1() {
+          throw new UserNameErrorException("");
+      }
+  
+      // `throws`  是使用在：方法签名后
+      public static void t2() throws UserNameErrorException {
+  
+      }
+  }
+  ```
+
+  
+
+##### 4.2、捕获异常
+
++ 通过 `throw  Exception ` 可以抛出异常，那么抛出的异常最终抛给谁？谁来解决？
+  + 抛出的异常 最终会抛给 最终的调用者，那么在一层一层调用的时候也可以把异常捕获了，处理一下。
+  + 抛出的异常 可以是编译异常、运行异常也可以是自定义异常，后面马上说自定义异常。
+
++ 上面提过 捕获异常使用 `    try { } catch (Exception e) {} ` 就ok了、
+
++ `catch (Exception e) {} ` 也是可以有多个的，但需要注意：越大的异常需要 越往后靠。
+
+  ```java
+  public class HandleException {
+      public static void e2() throws Exception {
+          // 可以把异常继续抛出去 也可以捕获
+          e1();
+      }
+  
+      public static void e1() throws Exception {
+          System.out.println(10 / 0);
+      }
+  
+      public static void main(String[] args) {
+  
+          // 最终的调用者 需要捕获异常了，否则就会抛给jvm 那就直接让你程序挂了
+          try {
+              HandleException.e2();
+          } catch (Exception e) {
+              System.out.println("除数不能为0~");
+              e.printStackTrace();
+          }
+      }
+  }
+  
+  ```
+
+
+
+
+5、异常链
+
++ `f3` 方法中抛出了一个异常，`f2` 调用 `f3`，`f1` 又调用了 `f2`，这种情况就会产生异常链。
++ 这种情况、为了避免直接将异常抛出给客户端，需要在 `f1` 或者 `f2` 或者 `f3` 中将异常处理掉。
+
+```java
+public class ExceptionChain {
+
+    public static void f3() {
+        throw new UserNameErrorException("用户名错啦！！！");
+    }
+
+    public static void f2() {
+        f3();
+    }
+
+
+    public static void f1() {
+        f2();
+    }
+
+
+    public static void main(String[] args) {
+        try {
+            f1();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+
+com.ilovesshan.day17.UserNameErrorException: 用户名错啦！！！
+    at com.ilovesshan.day17.ExceptionChain.f3(ExceptionChain.java:13)
+    at com.ilovesshan.day17.ExceptionChain.f2(ExceptionChain.java:17)
+    at com.ilovesshan.day17.ExceptionChain.f1(ExceptionChain.java:22)
+    at com.ilovesshan.day17.ExceptionChain.main(ExceptionChain.java:28)
+用户名错啦！！！
+```
+
+
+
+#### 5、finally 代码块
+
++ `finaly` 代码块中的代码，不管 有没有发生异常都是会执行的。
++ `finaly` 代码块中 不要乱用 `return` 、`break` 、 `continue` 关键字，可能会对方法的返回值更改。 
+
+```java
+import java.util.Random;
+
+public class FinallyCode {
+    public static void main(String[] args) {
+        try {
+            extracted();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            System.out.println("finally 总是会执行的");
+        }
+    }
+
+    private static void extracted() {
+        double aDouble = new Random().nextDouble();
+        System.out.println("aDouble = " + aDouble);
+        if (aDouble > 0.5) {
+            throw new UserNameErrorException("用户名错误~~~");
+        }
+    }
+}
+```
+
+```tex
+aDouble = 0.041955238297828545
+finally 总是会执行的
+
+
+aDouble = 0.695935810231812
+finally 总是会执行的
+com.ilovesshan.day17.UserNameErrorException: 用户名错误~~~
+at com.ilovesshan.day17.FinallyCode.extracted(FinallyCode.java:27)
+at com.ilovesshan.day17.FinallyCode.main(FinallyCode.java:15)
+```
+
+
+
+6、看几道题吧
+
