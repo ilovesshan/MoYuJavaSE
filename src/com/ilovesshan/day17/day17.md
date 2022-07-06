@@ -509,5 +509,76 @@ at com.ilovesshan.day17.FinallyCode.main(FinallyCode.java:15)
 
 
 
-6、看几道题吧
+#### 6、看几道题吧
+
+```java
+package com.ilovesshan.day17;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/6
+ * @description:
+ */
+public class Exercise {
+    public static void main(String[] args) {
+        Exercise exercise = new Exercise();
+        System.out.println(exercise.f1());
+        System.out.println(exercise.f2());
+        System.out.println(exercise.f3());
+    }
+
+
+    public int f1() {
+        int i = 1;
+        try {
+            i++;
+            throw new UserNameErrorException("error");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return i++;
+        }
+    }
+
+
+    public int f2() {
+        int i = 1;
+        try {
+            i++;
+            return i;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return i++;
+        } finally {
+            i++;
+        }
+
+    }
+
+
+    public int f3() {
+        int i = 1;
+        try {
+            i++;
+            return i;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return i++;
+        } finally {
+            i++;
+            return i;
+        }
+    }
+}
+
+com.ilovesshan.day17.UserNameErrorException: error
+	at com.ilovesshan.day17.Exercise.f1(Exercise.java:23)
+	at com.ilovesshan.day17.Exercise.main(Exercise.java:13)
+2
+2
+3
+    
+
+```
 
