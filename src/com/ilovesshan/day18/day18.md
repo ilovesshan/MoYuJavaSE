@@ -359,6 +359,208 @@ public class SuperArray<T> {
 
 #### 4、泛型继承、通配符
 
+##### 4.1、泛型继承
+
+```java
+public class GenericsExtends {
+    public static void main(String[] args) {
+        MyClass1<User> myClass1 = new MyClass1<>();
+        MyClass2 myClass2 = new MyClass2();
+    }
+}
+
+interface MyInterface<T> {
+}
+
+// 实现MyInterface接口时 未指明泛型类型
+class MyClass1<T> implements MyInterface<T> {}
+
+// 实现MyInterface接口时 指明泛型类型
+```
+
+
+
+##### 4.2、泛型通配符 
+
++ 案例需要的类
+
+  ```java
+  interface AInterface<T> {
+  }
+  
+  class AInterfaceImpl<T> implements AInterface<T> {
+  }
+  
+  
+  class AA {
+  }
+  
+  class BB extends AA {
+  }
+  
+  class CC extends BB {
+  }
+  
+  
+  class Test {
+      // 传入 任意类型
+      void inputAny(AInterface<?> aInterface) {
+      }
+  
+      // 传入 BB或者BB的子类
+      void inputExtends(AInterface<? extends BB> aInterface) {
+      }
+  
+  
+      // 传入 BB或BB的父类
+      void inputSuper(AInterface<? super BB> aInterface) {
+      }
+  }
+  
+  ```
+
+
+
++ `<?>` 表无限，随便传入
+
+  ```java
+  public class GenericWildcard {
+      public static void main(String[] args) {
+          Test test = new Test();
+          
+          // 传入 任意类型
+          test.inputAny(new AInterfaceImpl<Object>());
+          test.inputAny(new AInterfaceImpl<AA>());
+          test.inputAny(new AInterfaceImpl<BB>());
+          test.inputAny(new AInterfaceImpl<CC>());
+          test.inputAny(new AInterfaceImpl<Integer>());
+          test.inputAny(new AInterfaceImpl<User>());
+      }
+  }
+  
+  ```
+
+  
+
++ `<? extends B>` 表下限，意思是：泛型类只能传入 B或者B的子类
+
+  ```java
+  public class GenericWildcard {
+      public static void main(String[] args) {
+          Test test = new Test();
+          
+          // 传入 BB或者BB的子类
+  
+          // 错误
+          //test.inputExtends(new AInterfaceImpl<AA>());
+  
+          // ok
+          test.inputExtends(new AInterfaceImpl<BB>());
+          test.inputExtends(new AInterfaceImpl<CC>());
+      }
+  }
+  
+  ```
+
+  
+
++ `<? super B>` 表上限，意思是：泛型类只能传入 B或者B的父类
+
+  ```java
+  public class GenericWildcard {
+      public static void main(String[] args) {
+          Test test = new Test();
+          // 传入 BB或BB的父类
+  
+          // 错误
+          // test.inputSuper(new AInterfaceImpl<CC>());
+  
+          // ok
+          test.inputSuper(new AInterfaceImpl<Object>());
+          test.inputSuper(new AInterfaceImpl<AA>());
+          test.inputSuper(new AInterfaceImpl<BB>());
+  
+  
+      }
+  }
+  
+  ```
+
+  
+
 #### 5、泛型擦除
 
-#### 6、静态和泛型
++ 泛型的概念是 `jdk1.4` 之后提出来的、在 `jdk1.4` 之前没有泛型的概念，而泛型擦除就是为了 兼容之前的代码。
+
+##### 5.1、泛型擦除
+
+```java
+public class GenericErasure {
+    // public static void printPair(Pair<User> pair) {}
+    // public static void printPair(Pair<Cat> pair) {}
+
+    // 注意 两个printPair方法 并不构成 方法的重载
+    // 原因是: 经过泛型擦除之后将会是：
+    // public static void printPair(Pair pair) {}
+    // public static void printPair(Pair pair) {}
+
+    // 很显然 编译器都通不过
+
+}
+
+// 泛型擦除的时候 T 将默认转成 Object
+class Pair<T> {
+    private T t;
+
+    public T getT() {
+        return t;
+    }
+
+    public void setT(T t) {
+        this.t = t;
+    }
+}
+```
+
+
+
+##### 5.2、泛型擦除和多态产生的冲突
+
+```java
+// 泛型擦除的时候 T 将默认转成 Object
+class Pair<T> {
+    private T t;
+
+    public T getT() {
+        return t;
+    }
+
+    public void setT(T t) {
+        this.t = t;
+    }
+}
+
+
+class UserPicker extends Pair<User> {
+    private User u;
+
+    @Override
+    public User getT() {
+        return u;
+    }
+
+    // 看一个诡异的现象: 父类的set方法泛型被擦除后 public void setT(Object t) {  this.t = t;  }
+    // 而 这里却传入的了 一个 User 类型, 好像违背了重写的规则
+
+    // 其实 jvm在底层帮助我们做了很多很多的事情、底层通过一个桥接方法 来实现了 这里产生的小冲突
+    @Override
+    public void setT(User t) {
+        this.u = t;
+    }
+}
+```
+
+
+
+#### 6、静态和泛型关系
+
