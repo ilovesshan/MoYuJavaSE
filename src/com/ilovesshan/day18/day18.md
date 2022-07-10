@@ -564,3 +564,37 @@ class UserPicker extends Pair<User> {
 
 #### 6、静态和泛型关系
 
++ 类中的静态成员、静态代码块中 不是使用到泛型，原因是：泛型加入机制就是，帮我我们在类被实例化或者方法被调用的时候再给予明确的类型、但是 静态变量或者静态代码块在类加载的时候就被加载到方法区去了。所以就冲突了，静态成员、静态代码块中不能使用泛型。
+
++ 静态方法可以使用，，原因是 方法调用的时候 我们会明确出泛型类型，所以并不冲突。
+
+  ```java
+  public class StaticAndGenerics {
+      public static void main(String[] args) {
+  
+      }
+  }
+  
+  
+  class StaticClass<T> {
+      private T t1;
+  
+      // 错误
+      // private  static   T t2;
+  
+      static {
+          int i3;
+          
+          // 错误
+          // T t4;
+      }
+      
+      
+      // ok
+      public static <E> E printS(E e) {
+          return e;
+      }
+  }
+  ```
+
+  
