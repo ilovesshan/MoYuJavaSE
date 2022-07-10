@@ -107,4 +107,65 @@
   }
   ```
 
-  
+
+
+#### 3、枚举实例添加自己的属性
+
+```java
+class EnumExpendTest {
+    public static void main(String[] args) {
+        EnumExpend[] values = EnumExpend.values();
+        for (EnumExpend value : values) {
+            System.out.println(value.getName() + ": " + value.getDescribe());
+            
+             // 春天: 春天到了...
+             // 夏天: 夏天到了...
+             // 秋天: 秋天到了...
+             // 冬天: 冬天到了...
+        }
+    }
+}
+
+public enum EnumExpend {
+    SPRING("春天", "春天到了..."),
+    SUMMER("夏天", "夏天到了..."),
+    AUTUMN("秋天", "秋天到了..."),
+    WINTER("冬天", "冬天到了...");
+
+    
+    private String name;
+    private String describe;
+    
+    
+    EnumExpend() {
+    }
+
+    EnumExpend(String message, String describe) {
+        this.name = message;
+        this.describe = describe;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescribe() {
+        return describe;
+    }
+
+    public void setDescribe(String describe) {
+        this.describe = describe;
+    }
+}
+```
+
+
+
+#### 4、枚举静态导入
+
++  `import com.ilovesshan.enumconatnt.*`
++  `import com.ilovesshan.enumconatnt.SPRING`
