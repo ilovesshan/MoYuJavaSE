@@ -119,6 +119,14 @@ public class CreateMultithreading {
 
 + 开启线程时、注意是调用 `start` 方法、而不是 `run` 方法, 调用`run` 方法那么`jvm`就会当作调用普通方法一样处理、并不会开启多线程。
 
+  + `Thread` 类 也是实现了 `Runnable` 接口的、
+
+  + `Thread` 类中 有一个 `start()` 方法、这个 `start()` 方法 内部调用了 `start0()` 方法
+
+  +  `start0()` 方法是一个本地 方法，`private native void start0();`
+
+    ![image-20220714215215324](day20.assets/image-20220714215215324.png)
+
   ```java
   public class InvokeInstanceRun {
       public static void main(String[] args) {
@@ -203,8 +211,6 @@ public class CreateMultithreading {
 
     
 
-
-
 + 通过 实现 `Runnable`接口 创建多线程时：
 
   + 可以通过匿名内部类和箭头函数来创建子线程、代码更加简洁。
@@ -228,6 +234,151 @@ public class CreateMultithreading {
 
 #### 3、创建有返回值线程
 
++ 实现`Callable`接口, 并且需要实现 `call()`方法。
++ `Callable` 接口 需要传入一个泛型 这个泛型类型就是`call`方法(要返回的数据)的返回值类型。
++ 创建实现了`Callable`接口的类的实例。
++ 通过 `FutureTask` 来管理这个实例。
++ 开启线程 调用 `futureTask.run()` 。
++ `futureTask.get()` 方法获取返回值、注意 get() 方法会阻塞代码向下执行 会抛出异常。
+
+```java
+public class CreateHasReturnedThread {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        System.out.println(1);
+        System.out.println(2);
+        // 创建 实例
+        HasReturnedThread hasReturnedThread = new HasReturnedThread();
+        // 通过 FutureTask 来管理这个实例
+        FutureTask<Integer> futureTask = new FutureTask<>(hasReturnedThread);
+        // 开启线程
+        futureTask.run();
+        // 注意 get() 方法会阻塞代码向下执行 会抛出异常
+        Integer value = futureTask.get();
+        System.out.println(value);
+        System.out.println(4);
+        System.out.println(3);
+
+    }
+}
+
+// 实现Callable接口, 并且需要实现 call()方法
+// Callable 接口 需要传入一个泛型 这个泛型类型就是 all方法(你要返回的数据)的返回值类型
+class HasReturnedThread implements Callable<Integer> {
+
+    @Override
+    public Integer call() throws Exception {
+        return 3;
+    }
+}
+
+
+打印结果:
+
+Connected to the target VM, address: '127.0.0.1:59131', transport: 'socket'
+1
+2
+3
+4
+3
+Disconnected from the target VM, address: '127.0.0.1:59131', transport: 'socket'
+
+Process finished with exit code 0
+
+```
+
+
+
 #### 4、多线程异步和效率
+
++ 通过单线程和多线程两种方式，来计算 `1~10000000` 的和，感受一下他们的区别。
+
+  ```java
+  package com.ilovesshan.day20;
+  
+  import java.util.concurrent.Callable;
+  import java.util.concurrent.ExecutionException;
+  import java.util.concurrent.FutureTask;
+  
+  /**
+   * Created with IntelliJ IDEA.
+   *
+   * @author: ilovesshan
+   * @date: 2022/7/14
+   * @description:
+   */
+  public class CalculateNumberTotal {
+      public static void main(String[] args) throws ExecutionException, InterruptedException {
+          long total = 0;
+          long maxNum = 10000000;
+          
+          // 单线程方式
+          long startTime = System.currentTimeMillis();
+  
+          for (int i = 0; i < maxNum; i++) {
+              total += i;
+          }
+          long endTime = System.currentTimeMillis();
+  
+          System.out.println("单线程方式   计算1~" + maxNum + "总和是: " + total + ", 耗时: " + (endTime - startTime));
+  
+  
+          // 多线程方式
+          total = 0;
+          startTime = System.currentTimeMillis();
+  
+          FutureTask[] futureTasks = new FutureTask[10];
+  
+          for (int i = 0; i < futureTasks.length; i++) {
+              FutureTask<Long> futureTask = new FutureTask<>(new CalculateNumber(i * 10000000, (i + 1) * 10000000));
+              futureTask.run();
+              futureTasks[i] = futureTask;
+          }
+  
+          for (int i = 0; i < futureTasks.length; i++) {
+              Long result = (Long) futureTasks[i].get();
+              total += result;
+          }
+  
+          endTime = System.currentTimeMillis();
+          System.out.println("多线程方式   计算1~" + maxNum + "总和是: " + total + ", 耗时: " + (endTime - startTime));
+      }
+  }
+  
+  
+  
+  class CalculateNumber implements Callable<Long> {
+      int start;
+      int end;
+  
+      public CalculateNumber() {
+      }
+  
+      public CalculateNumber(int start, int end) {
+          this.start = start;
+          this.end = end;
+      }
+  
+      @Override
+      public Long call() throws Exception {
+          long result = 0L;
+          for (int i = start; i < end; i++) {
+              result += i;
+          }
+          return result;
+      }
+  }
+  
+  计算结果:    单线程比多线程快??? 哈哈哈，不知道怎么回事了~~~
+      
+  Connected to the target VM, address: '127.0.0.1:59554', transport: 'socket'
+  单线程方式   计算1~10000000总和是: 49999995000000, 耗时: 13
+  多线程方式   计算1~10000000总和是: 4999999950000000, 耗时: 80
+  Disconnected from the target VM, address: '127.0.0.1:59554', transport: 'socket'
+  
+  Process finished with exit code 0
+  
+  ```
+
+  
 
 #### 5、守护线程
