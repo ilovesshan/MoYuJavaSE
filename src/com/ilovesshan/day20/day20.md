@@ -442,3 +442,102 @@ public class SetDaemonThread {
 
 ```
 
+
+
+#### 6、线程生命周期
+
+##### 6.1、生命周期概念
+
++ 生命周期就好比一个人的一生，从 `出生` 到 `成人 `到 `结婚生子`  到 `晚年享福`  到 离世 的一个过程。 
++ 那么 线程也有自己的生命周期，从一个线程被创建开始 到 线程的结束，中间会经历很多种状态，那么这一系列的状态结合起来，我们就称之为 `线程的生命周期`。
+
+##### 6.2、线程生命周期节点
+
++ `new`：线程被创建的初期，还没有调用 `start` 方法。
+
++ `runnable`：线程被调用 `start`方法之后，进入 `就绪` 状态，有可能由于某些条件导致该线程不能立即执行，原因有可能被其他线程所阻塞，也有可能该线程处于一个无限等待状态，那么具体的执行时机还是需要 `操作系统`来进行调度的。
+
++ `locked`：线程处于阻塞状态(一般是被动的阻塞，例如：10线程去访问一个资源，这个资源同时只允许一个线程访问，那么剩下的9个线程只能排队等，这个 `等`的状态 就是`locked`)。
+
++ `waiting`：处于一个无限等待状态(一般是主动的等，例如：`A线程`先执行，`A线程`执行了一会，发现需要`B线程`携带的数据，那么`A线程` 就只能等`B线程` 并且是一直等，无限的等下去，直`达B线程`到达)。
+
++ `timed waiting`：处于一个有限等待状态，例如我只等 5秒钟，等不到就算了，我继续执行...
+
++ `terminated`：线程执行完毕，退出状态。
+
+  
+
+##### 6.3、Thread类中的State枚举
+
+```java
+ public enum State {
+        /**
+         * Thread state for a thread which has not yet started.
+         */
+        NEW,
+
+        /**
+         * Thread state for a runnable thread.  A thread in the runnable
+         * state is executing in the Java virtual machine but it may
+         * be waiting for other resources from the operating system
+         * such as processor.
+         */
+        RUNNABLE,
+
+        /**
+         * Thread state for a thread blocked waiting for a monitor lock.
+         * A thread in the blocked state is waiting for a monitor lock
+         * to enter a synchronized block/method or
+         * reenter a synchronized block/method after calling
+         * {@link Object#wait() Object.wait}.
+         */
+        BLOCKED,
+
+        /**
+         * Thread state for a waiting thread.
+         * A thread is in the waiting state due to calling one of the
+         * following methods:
+         * <ul>
+         *   <li>{@link Object#wait() Object.wait} with no timeout</li>
+         *   <li>{@link #join() Thread.join} with no timeout</li>
+         *   <li>{@link LockSupport#park() LockSupport.park}</li>
+         * </ul>
+         *
+         * <p>A thread in the waiting state is waiting for another thread to
+         * perform a particular action.
+         *
+         * For example, a thread that has called <tt>Object.wait()</tt>
+         * on an object is waiting for another thread to call
+         * <tt>Object.notify()</tt> or <tt>Object.notifyAll()</tt> on
+         * that object. A thread that has called <tt>Thread.join()</tt>
+         * is waiting for a specified thread to terminate.
+         */
+        WAITING,
+
+        /**
+         * Thread state for a waiting thread with a specified waiting time.
+         * A thread is in the timed waiting state due to calling one of
+         * the following methods with a specified positive waiting time:
+         * <ul>
+         *   <li>{@link #sleep Thread.sleep}</li>
+         *   <li>{@link Object#wait(long) Object.wait} with timeout</li>
+         *   <li>{@link #join(long) Thread.join} with timeout</li>
+         *   <li>{@link LockSupport#parkNanos LockSupport.parkNanos}</li>
+         *   <li>{@link LockSupport#parkUntil LockSupport.parkUntil}</li>
+         * </ul>
+         */
+        TIMED_WAITING,
+
+        /**
+         * Thread state for a terminated thread.
+         * The thread has completed execution.
+         */
+        TERMINATED;
+    }
+```
+
+
+
+##### 6.4、线程生命周期执行流程图
+
+![image-20220717091951813](day20.assets/image-20220717091951813.png)
