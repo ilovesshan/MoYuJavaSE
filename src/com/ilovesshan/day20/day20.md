@@ -299,13 +299,6 @@ Process finished with exit code 0
   import java.util.concurrent.ExecutionException;
   import java.util.concurrent.FutureTask;
   
-  /**
-   * Created with IntelliJ IDEA.
-   *
-   * @author: ilovesshan
-   * @date: 2022/7/14
-   * @description:
-   */
   public class CalculateNumberTotal {
       public static void main(String[] args) throws ExecutionException, InterruptedException {
           long total = 0;
@@ -378,7 +371,74 @@ Process finished with exit code 0
   Process finished with exit code 0
   
   ```
-
+  
   
 
 #### 5、守护线程
+
+##### 1、守护线程  和 用户线程
+
++  java中线程分为两类：`守护线程`和`用户线程`
+
++ 守护线程(daemon thread) 又被称为 "服务进程、精灵线程、后台线程" ， 它是个服务线程，一般在后台默默的为我们提供一些服务比如：
+  +  java的垃圾回收机制。
+  + 敲代码时，idea提供的语法提示、语法监测等等。
++ 用户线程 用户自定义的线程。
++ 守护线程 一般会默默的为用户线程服务，在java中 任何一个守护线程都是jvm中 整个非守护线程的保姆，通俗易懂点：
+  + 在`用户线程`执行完毕后，main线程就会跟着结束、`main`结束之后那么 `jvm` 也就退出来了，紧接着 `守护线程`也就结束了，
+  + 如果说：用户线程还没结束的情况下，那么 `守护线程` 是不会退出的，因为：`守护线程`还需要负责回收垃圾啊~
+
+##### 2、设置一个线程为守护线程
+
++ `t.setDaemon(true)` 即可设置 `t` 线程为守护线程。
+
+```java
+package com.ilovesshan.day20;
+
+public class SetDaemonThread {
+    public static void main(String[] args) {
+
+        System.out.println("mian----");
+
+        Thread t1 = new Thread(() -> {
+            Thread t2 = new Thread(() -> {
+                for (int i = 0; i < 10; i++) {
+                    System.out.println("t2---" + i);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                System.out.println("t2结束----");
+            });
+            // 将 t2 线程设置成 t1的守护线程, 即t1结束 那么t2 就结束
+            t2.setDaemon(true);
+
+            t2.start();
+
+            for (int i = 0; i < 5; i++) {
+                System.out.println("t1---" + i);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("t1结束----");
+
+
+        });
+
+
+        // 将 t1 线程设置成 main的守护线程, 即main结束 那么t1 就结束
+        // t1.setDaemon(true);
+
+        t1.start();
+
+
+    }
+}
+
+```
+
