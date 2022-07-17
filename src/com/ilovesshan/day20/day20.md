@@ -747,4 +747,104 @@ public class SetDaemonThread {
 
 ##### 8.3、线程争抢
 
++ 看一个线程争抢案例
+
+  + 这段程序交给不懂多线程的人来看：两个for循环 分别执行了1000次 每次都对 count++； 那么count结果应该是：`2000` , 那么这么理解就错了。
+  + 这里就出现了多线程争夺资源的问题，出答案可能不是 `2000`。
+
+  ```java
+  package com.ilovesshan.day20;
+  
+  /**
+   * Created with IntelliJ IDEA.
+   *
+   * @author: ilovesshan
+   * @date: 2022/7/17
+   * @description: 线程争抢
+   */
+  public class ThreadFor {
+  
+      public static int count = 0;
+  
+      static void increment() {
+          count++;
+      }
+  
+      public static void main(String[] args) throws InterruptedException {
+          Thread t1 = new Thread(() -> {
+              for (int i = 0; i < 1000; i++) {
+                  ThreadFor.increment();
+              }
+          });
+  
+  
+          Thread t2 = new Thread(() -> {
+              for (int i = 0; i < 1000; i++) {
+                  ThreadFor.increment();
+              }
+          });
+  
+          t1.start();
+          t2.start();
+  
+          t1.join();
+          t2.join();
+  
+          System.out.println(count);
+  
+      }
+  }
+  ```
+
+  + 如果需要解决种种问题，那么可以通过 `synchronized` 关键字，表示 同一时刻 只能允许一个线程来访问 这个方法，其余的线程休要排队等侯，当前这个正在访问的线程会被上锁。
+
+  ```java
+  synchronized static void increment() {
+      count++;
+  }
+  ```
+
+  
+
++ 在看一个多线程 `窗口售票的案例`
+
+  ```java
+  package com.ilovesshan.day20;
+  public class Ticket implements Runnable {
+      private static int count = 50;
+  
+      @Override
+      public void run() {
+          while (count > 0) {
+              // 这里加锁是关键代码 具体写法后面会详细介绍到
+              synchronized (Ticket.class) {
+                  // Thread.currentThread().getName() 可以获取当前线程的名称   Thread-0 / Thread-1
+                  String name = Thread.currentThread().getName();
+  
+                  System.out.println(name + "窗口卖出一张票, 剩余：" + --count + "张票~");
+              }
+              try {
+                  Thread.sleep(100);
+              } catch (InterruptedException e) {
+                  e.printStackTrace();
+              }
+          }
+      }
+  
+      public static void main(String[] args) {
+          Thread t1 = new Thread(new Ticket());
+          Thread t2 = new Thread(new Ticket());
+  
+          t1.start();
+          t2.start();
+      }
+  
+  }
+  
+  ```
+
+  
+
+  
+
 #### 9、线程安全的实现方法
