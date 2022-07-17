@@ -583,7 +583,7 @@ public class SetDaemonThread {
 
   
 
-##### 7.3数据不可见性和数据乱序性
+##### 7.3、数据不可见性和数据乱序性
 
 + `缓存行` 会引发一定的问题那就是：`数据不可见性和数据乱序性`
   + `数据不可见性` ：同一个资源 `x=0和y=0` 被存放在`缓存行` ， `Cpu1` 读取过去进行修改 `x=1, y=1`，此时 `Cpu1` 还没来得及回刷到 `缓存行`中，而  `Cpu2` 读取过去进行修改 `x=2, y=2`，此时 `Cpu2` 还没来得及回刷到 `缓存行`中，这种情况就称之为：`数据不可见性`，两个 `Cpu` 都在修改数据 而两方并不知道。
@@ -593,3 +593,158 @@ public class SetDaemonThread {
   + `Store Buffers`
   + 内存屏障
   + `Invalidate Queues`
+
+#### 8、java内存模型
+
++ java 曾经定义了一套模式，目的是：来屏蔽各种操作系统和硬件之间的差异，来实现 java程序在各种平台上都能达到一致的调用效果，这就是 `java内存模型`。
++ 然而  `java内存模型` 这带来了 一定的问题：指令重排、内存可见性、线程争抢...
+
+##### 8.1、指令重排
+
++ 在指令重排是有个一经典的 `if as seiral` 语义，意思就是：单线程下，为了提高程序并行执行效率，jvm会对指令做一些排序优化，但是 不会影响到最终程序执行的结果
+
++ 指令优化条件：`jvm`并不会对 操作之间有依赖数据的指令进行重排，那么势必会导致结果和预期结果不一致。
+
++ 举个例子：
+
+  + `指令1` 和 `指令2` 他们不依赖任何数据，所以就可以重排，谁先执行都无所谓。
+  + `指令3` 是 依赖于 `指令1` 和 `指令2`的，所以不能排。 必须有 `x 和 y` 才能执行 `指令三`。
+
+  ```java
+  public class CpuReadData {
+      public static void main(String[] args) {
+          int x = 10; // 指令1
+          int y = 10; // 指令2
+          int z = x + y; // 指令3 
+      }
+  }
+  ```
+
++ 在单线程下 我们不用担心指令重排带来的问题，但是在 多线程下 指令重排 也会带来一些奇怪的问题...
+
+  + 执行两次结果：
+
+    ```tex
+    一共执行了: 184593次,消耗时间: 60733
+    一共执行了: 281061次,消耗时间: 89738
+    ```
+
+    
+
+  + 下面代码可能出现的执行循序：
+
+    + 1、 x = 1,  y = 1,  a = 1,  b = 1
+    +  2、x = 1,  y = 1,  a = 0,  b = 1
+    + 3、 x = 1,  y = 1,  a = 1,  b = 0
+    + 4、 x = 1,  y = 1,  a = 0,  b = 0
+
+    
+
+  ```java
+  package com.ilovesshan.day20;
+  
+  /**
+   * Created with IntelliJ IDEA.
+   *
+   * @author: ilovesshan
+   * @date: 2022/7/17
+   * @description: 多线程下 指令重排带来的问题
+   */
+  public class InstructionRearrangement {
+      public static int x, y, a, b, count = 0;
+  
+      public static void main(String[] args) throws InterruptedException {
+          long startTime = System.currentTimeMillis();
+  
+  
+          while (true) {
+              count++;
+  
+              Thread t1 = new Thread(() -> {
+                  x = 1;
+                  a = y;
+              });
+  
+              Thread t2 = new Thread(() -> {
+                  y = 1;
+                  b = x;
+              });
+  
+  
+              t1.start();
+              t2.start();
+  
+              t1.join();
+              t2.join();
+  
+              System.out.println("x = " + x + ", y = " + y + ", a = " + a + ", b = " + b);
+  
+              if (a == 0 && b == 0) {
+                  long endTime = System.currentTimeMillis();
+                  System.out.println("一共执行了: " + count + "次," + "消耗时间: " + (endTime - startTime));
+                  break;
+              }
+  
+              x = 0;
+              y = 0;
+              a = 0;
+              b = 0;
+          }
+      }
+  
+  }
+  ```
+
++ 如何解决多线程下：指令重排带来的问题？
+
+  + 添加内存屏障，java语言中通过添加 `volatile` 关键字来解决一个变量在进行读写操作时避免进行重排。
+  + 内存屏障可以简单理解：在一次读写操作之前加一条指令，当cpu碰到这条指令时、必须等到前面的指令执行完才能执行后面的指令。
+
+##### 8.2、内存可见性
+
++ `缓存行` 引发的问题 `数据不可见性`，看段代码：
+
+  ```java
+  package com.ilovesshan.day20;
+  
+  /**
+   * Created with IntelliJ IDEA.
+   *
+   * @author: ilovesshan
+   * @date: 2022/7/17
+   * @description: 内存可见性
+   */
+  public class MemoryVisibility {
+  
+      // 不能够保证内存可见性
+      // public static boolean flag = false;
+  
+      // volatile 关键字能够保证内存可见性
+      public static volatile boolean flag = false;
+  
+      public static void main(String[] args) throws InterruptedException {
+          new Thread(() -> {
+              while (!flag) {
+              }
+              System.out.println("t1----");
+          }).start();
+  
+          Thread.sleep(2000);
+          flag = true;
+      }
+  }
+  
+  ```
+
++ `happens before` 语义阐述了：两个操作之间的内存可见性，如果一个操作的执行结果需要对另一个操作可见，那么这个两个操作之间需要保持 `happens before`关系。
+
++ 总结来说：`if as seiral` 和  `happens before`  语义一致：
+
+  + `if as seiral` 语义可以保证：单线程下的代码 执行的结果不被改变。
+  + `happens before`语义能够保证：多线程下同步代码 执行的结果不被改变。
+
++ `valotile` 主要作用：指令重排和内存可见性。
+
+##### 8.3、线程争抢
+
+#### 9、线程安全的实现方法
