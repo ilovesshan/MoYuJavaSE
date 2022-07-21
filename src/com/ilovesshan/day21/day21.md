@@ -68,7 +68,7 @@
 
 
 
-#### 2、synchronization 锁升级过程和原理
+#### 2、synchronization 锁升级过程
 
 ##### 2.1、锁升级经历的四个阶段
 
@@ -81,14 +81,116 @@
   + 　`java1.6`中，引入了自适应自旋锁，自适应意味着自旋 的次数不是固定不变的，而是根据前一次在同一个锁上自 旋的时间以及锁的拥有者的状态来决定。 如果在同一个锁对象上，自旋等待    刚刚成功获得过锁，并 且持有锁的线程正在运行中，那么虚拟机就会认为这次自 旋也是很有可能再次成功，进而它将允许自旋等待持续相 对更长的时间。
 
 + 轻量级锁到重量级锁
-
   + 轻量级锁替换失败次数达到一定数量是(默认10次)，就会从 `轻量级锁到重量级锁`，注意：如果在线程`B` 期间又有线程 `C`来获取锁，那么此时的轻量级锁也会膨胀成重量级锁。
   + 　关于重量级锁，其本质就是操作对象内部的监视器（monitor)
 
-  ![image-20220721221425832](day21.assets/image-20220721221425832.png)
+##### 2.1、锁升级标志位
+
+![image-20220721221425832](day21.assets/image-20220721221425832.png)
 
 ##### 
 
 #### 3、死锁、重入锁
+
+##### 3.1、死锁
+
++ 线程 `A`持有 `A`资源的情况下需要获取 `B资源`，线程 `B`持有 `B`资源的情况下需要获取 `A资源`
++ 线程 `A`就等着线程 `B`释放 `B资源`，同时 线程 `B`就等着线程 `A`释放 `A资源`，这种情况下就会产生死锁。
++ 死锁是一种非常危险的行为，在开发中 我们需要避免这种情况。
+
+![image-20220721222452971](day21.assets/image-20220721222452971.png)
+
+```java
+public class Deadlock {
+    public static final Object MONITOR1 = new Object();
+    public static final Object MONITOR2 = new Object();
+
+    public static void lock1() throws InterruptedException {
+        synchronized (MONITOR1) {
+            Thread.sleep(1000);
+            System.out.println(Thread.currentThread().getName() + "持有 MONITOR1");
+            synchronized (MONITOR2) {
+                System.out.println(Thread.currentThread().getName() + "持有 MONITOR2");
+            }
+        }
+    }
+
+    public static void lock2() throws InterruptedException {
+        synchronized (MONITOR2) {
+            Thread.sleep(1000);
+            System.out.println(Thread.currentThread().getName() + "持有 MONITOR2");
+            synchronized (MONITOR1) {
+                System.out.println(Thread.currentThread().getName() + "持有 MONITOR1");
+            }
+        }
+    }
+
+
+    public static void main(String[] args) {
+        new Thread(() -> {
+            try {
+                Deadlock.lock1();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+
+        new Thread(() -> {
+            try {
+                Deadlock.lock2();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+}
+
+打印结果：
+
+Connected to the target VM, address: '127.0.0.1:54227', transport: 'socket'
+Thread-0持有 MONITOR1
+Thread-1持有 MONITOR2
+   
+```
+
+
+
+##### 3.2、重入锁
+
+https://blog.csdn.net/yanyan19880509/article/details/52345422
+
+```java
+public class RepeatLock {
+    public static final Object MONITOR = new Object();
+
+    public static void foo() {
+        synchronized (MONITOR) {
+            System.out.println(Thread.currentThread().getName() + "第1层");
+            synchronized (MONITOR) {
+                System.out.println(Thread.currentThread().getName() + "第2层");
+                synchronized (MONITOR) {
+                    System.out.println(Thread.currentThread().getName() + "第3层");
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        new Thread(() -> {
+            RepeatLock.foo();
+        }).start();
+    }
+}
+
+
+Connected to the target VM, address: '127.0.0.1:54326', transport: 'socket'
+Thread-0第1层
+Thread-0第2层
+Thread-0第3层
+Disconnected from the target VM, address: '127.0.0.1:54326', transport: 'socket'
+```
+
+
 
 #### 4、notify和wait
