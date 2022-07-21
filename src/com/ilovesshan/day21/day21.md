@@ -193,4 +193,93 @@ Disconnected from the target VM, address: '127.0.0.1:54326', transport: 'socket'
 
 
 
-#### 4、notify和wait
+#### 4、wait和notify
+
+wait和notify一般是成对的使用，他们是 `Object` 身上的成员方法
+
++ `wait` 用于将 线程挂起(无限等待)，会释放锁。`wait(time)` 用于将 线程挂起(有限等待，过了这个时间段就自己醒了)，会释放锁
++ `notify` 用于随机唤起一个线程(争夺这把锁的线程)，`notifyAll()` 用于唤醒全部线程，来争抢这把锁。、
+
+注意：操作这个锁的原则是：你得持有这把锁才能操作它，调用 `wait 、notify 或者其他方法`，否则会报错。
+
+```java
+public class WaitAndNotify {
+    public static final Object MONITOR = new Object();
+
+    public static void main(String[] args) {
+
+        new Thread(() -> {
+            synchronized (MONITOR) {
+                System.out.println(Thread.currentThread().getName() + "持有 MONITOR");
+                try {
+                    // 2s 自动醒
+                    MONITOR.wait(2000);
+                } catch (InterruptedException e) {
+                    System.out.println(Thread.currentThread().getName() + "被唤醒...");
+                    e.printStackTrace();
+                }
+                System.out.println(Thread.currentThread().getName() + "被唤醒后执行了100000行代码");
+            }
+        }).start();
+    }
+}
+
+Connected to the target VM, address: '127.0.0.1:55300', transport: 'socket'
+Thread-0持有 MONITOR
+Thread-0被唤醒后执行了100000行代码
+Disconnected from the target VM, address: '127.0.0.1:55300', transport: 'socket'
+
+```
+
+```java
+public class WaitAndNotify {
+    public static final Object MONITOR = new Object();
+
+    public static void main(String[] args) {
+
+        new Thread(() -> {
+            synchronized (MONITOR) {
+                System.out.println(Thread.currentThread().getName() + "持有 MONITOR");
+                try {
+                    // 一直睡，直到被 notify() 或者 notifyAll()
+                    MONITOR.wait();
+                } catch (InterruptedException e) {
+                    System.out.println(Thread.currentThread().getName() + "被唤醒...");
+                    e.printStackTrace();
+                }
+                System.out.println(Thread.currentThread().getName() + "被唤醒后执行了100000行代码");
+            }
+        }).start();
+
+
+        new Thread(() -> {
+            synchronized (MONITOR) {
+                System.out.println(Thread.currentThread().getName() + "持有 MONITOR");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                MONITOR.notify();
+                System.out.println(Thread.currentThread().getName() + "随机唤醒争夺MONITOR锁的一个线程");
+            }
+        }).start();
+    }
+}
+
+
+
+Connected to the target VM, address: '127.0.0.1:55330', transport: 'socket'
+Thread-0持有 MONITOR
+Thread-1持有 MONITOR
+Thread-1随机唤醒争夺MONITOR锁的一个线程
+Thread-0被唤醒后执行了100000行代码
+Disconnected from the target VM, address: '127.0.0.1:55330', transport: 'socket'
+
+Process finished with exit code 0
+    
+```
+
+
+
+#### 5、线程方法总结
