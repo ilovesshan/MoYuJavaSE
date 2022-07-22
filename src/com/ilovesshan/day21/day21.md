@@ -507,7 +507,7 @@ Disconnected from the target VM, address: '127.0.0.1:51909', transport: 'socket'
 
 #### 7、Lock锁和读写锁
 
-##### 7.1、Lock锁
+##### 7.1、Lock锁 ReentrantLock
 
 + `Lock`  是一个接口，我们主要研究它的实现子类 `ReentrantLock` 类，`ReentrantLock` 类主要使用到的方法是 `lock 和 unlock` 加锁和释放锁。
 
@@ -562,6 +562,87 @@ Disconnected from the target VM, address: '127.0.0.1:51909', transport: 'socket'
 
   
 
-##### 7.2、读写锁
+##### 7.2、读写锁 ReentrantReadWriteLock
+
+`ReentrantReadWriteLock` 读写锁实现了 `ReadWriteLock` 接口， `ReadWriteLock` 接口有两个抽象方法 `readLock` 和  `writeLock`。
+
+![image-20220722222416005](day21.assets/image-20220722222416005.png)
+
+`ReentrantReadWriteLock` 本质会分成两把锁，一把读数据， 一把写数据，当在读数据的时候可允许多个线程一起来读，但是写的时候只允许一个线程写，这个时候不能读。
+
+在真是开发中、读的并发量远远大于写，无非这也是一个好的优化手段，比起 `synchronization` 关键字来说(每次都要加锁)
+
+使用 `ReentrantReadWriteLock` 举个例子：
+
+```java
+package com.ilovesshan.day21;
+
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+public class ReentrantReadWriteLockTest {
+
+    public static ReentrantReadWriteLock sReadWriteLock = new ReentrantReadWriteLock();
+    public static int count = 1;
+
+
+    public static void read() {
+        // 获取 读取锁
+        ReentrantReadWriteLock.ReadLock readLock = sReadWriteLock.readLock();
+        readLock.lock();
+        try {
+            Thread.sleep(100);
+            System.out.println(Thread.currentThread().getName() + "读取数据...");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    public static void write() {
+        // 获取 写入锁
+        ReentrantReadWriteLock.WriteLock writeLock = sReadWriteLock.writeLock();
+        writeLock.lock();
+        try {
+            Thread.sleep(100);
+            System.out.println(Thread.currentThread().getName() + "写入数据...");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+
+    public static void main(String[] args) {
+        for (int i = 0; i < 100; i++) {
+            int num = (int) (Math.random() * 100);
+            if (num > 20) {
+                // 读
+                new Thread(() -> ReentrantReadWriteLockTest.read()).start();
+            } else {
+                // 写
+                new Thread(() -> ReentrantReadWriteLockTest.write()).start();
+            }
+        }
+    }
+}
+```
+
+
+
+
 
 #### 8、线程方法总结
+
++ Thread 实例
+  + join()
+  + setDaemon()
+  + interrupt()
+  + setPriority()
++ Thread 静态方法
+  + Thread.sleep()
+  + Thread.yield()
++ `Object`
+  + wait()
+  + notify()
