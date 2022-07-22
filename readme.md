@@ -184,5 +184,6 @@
 + 死锁和重入锁
 + wait和notify关键字
 + interrupt 和 线程退出
-+ lockSupport
++ lockSupport 工具类
++ Lock锁和读写锁
 + 线程方法总结

@@ -282,4 +282,286 @@ Process finished with exit code 0
 
 
 
-#### 5、线程方法总结
+#### 5、interrupt 和 线程退出
+
+##### 5.1、interrupt 
+
+`interrupt ` 是线程的实例方法、用来打断睡眠中的线程
+
++ 打断 `Thread.seleep(time)` 睡眠的线程
+
+  ```java
+  public class InterruptThread {
+      public static void main(String[] args) {
+  
+          Runnable runnable = () -> {
+              System.out.println(Thread.currentThread().getName() + "   start...");
+              try {
+                  Thread.sleep(6000000);
+              } catch (InterruptedException e) {
+                  System.out.println("被打断睡觉了...");
+                  e.printStackTrace();
+  
+              }
+              System.out.println(Thread.currentThread().getName() + "   end...");
+          };
+  
+          Thread thread = new Thread(runnable);
+          thread.start();
+  
+          try {
+              Thread.sleep(2000);
+          } catch (InterruptedException e) {
+              e.printStackTrace();
+          }
+  
+          thread.interrupt();
+  
+      }
+  }
+  
+  
+  
+  
+  Connected to the target VM, address: '127.0.0.1:51033', transport: 'socket'
+  Thread-0   start...
+  被打断睡觉了...
+  Thread-0   end...
+  java.lang.InterruptedException: sleep interrupted
+  	at java.lang.Thread.sleep(Native Method)
+  	at com.ilovesshan.day21.InterruptThread.lambda$main$0(InterruptThread.java:16)
+  	at java.lang.Thread.run(Thread.java:748)
+  Disconnected from the target VM, address: '127.0.0.1:51033', transport: 'socket'
+      
+  ```
+
+  
+
++ 打断 `Object.wait(time)`挂起的线程
+
+  ```java
+  public class InterruptThread {
+      public static final Object MONITOR = new Object();
+  
+      public static void main(String[] args) {
+          Thread thread1 = new Thread(() -> {
+              System.out.println(Thread.currentThread().getName() + "   start...");
+              synchronized (MONITOR) {
+                  try {
+                      MONITOR.wait(6000000);
+                  } catch (InterruptedException e) {
+                      System.out.println("被打断睡觉了...");
+                      e.printStackTrace();
+  
+                  }
+                  System.out.println(Thread.currentThread().getName() + "   end...");
+              }
+          });
+          thread1.start();
+  
+          try {
+              Thread.sleep(2000);
+          } catch (InterruptedException e) {
+              e.printStackTrace();
+          }
+  
+          thread1.interrupt();
+  
+      }
+  
+  }
+  
+  
+  Connected to the target VM, address: '127.0.0.1:51113', transport: 'socket'
+  Thread-1   start...
+  被打断睡觉了...
+  Thread-1   end...
+  java.lang.InterruptedException: sleep interrupted
+  	at java.lang.Thread.sleep(Native Method)
+  	at com.ilovesshan.day21.InterruptThread.lambda$main$1(InterruptThread.java:36)
+  	at java.lang.Thread.run(Thread.java:748)
+  Disconnected from the target VM, address: '127.0.0.1:51113', transport: 'socket'
+  ```
+
+  
+
+##### 5.2、线程退出
+
++ 下面代码案例中、这个线程是退不出的，`while()` 循环会一直自旋... 
+
++  一直自旋原因是：`while` 代码块中，并没有任何可能会影响到数据改变的代码，那么此时线程获取到的数据也就不会再次将其刷回缓存行，也就导致 `flag`一直是 `false`，即便主线程改了。
+
+  ```java
+  public class ThreadExit {
+      public static boolean flag = true;
+  
+      public static void main(String[] args) {
+          new Thread(() -> {
+              while (flag) {}
+              System.out.println(Thread.currentThread().getName() + "   todo...");
+          }).start();
+  
+          try {
+              Thread.sleep(3000);
+          } catch (InterruptedException e) {
+              e.printStackTrace();
+          }
+          
+          flag = false;
+          
+      }
+  }
+  ```
+
+  
+
++ 可以看出来下面代码中，并不是2秒中就会退出这个循环，而是2秒多才会退出。
+
++ 那么产生的原因是：当线程 thread把数据读取过来放到自己存数据的池子中、同时 主线程把 `flag` 改了，而 现在的 thread还在使用最开始读取的 flag，当然数据可能就不是最新的，当 thread 读取到最新的数据时这个时刻并不是主线程改 `flag` 值得时刻，可能是晚了一会。
+
+  ```java
+  public class ThreadExit {
+      public static boolean flag = true;
+  
+      public static void main(String[] args) {
+          new Thread(() -> {
+              while (flag) {
+                  System.out.println(Thread.currentThread().getName() + "   todo...");
+              }
+          }).start();
+  
+          try {
+              Thread.sleep(3000);
+          } catch (InterruptedException e) {
+              e.printStackTrace();
+          }
+          
+          flag = false;
+          
+      }
+  }
+  ```
+
+  
+
++ 解决这个问题也很好办：使用 `volatile` 关键字即可。
+
++ `volatile` 关键字主要作用就是屏蔽了java内存模型得不可见性，当数据改变时、会强制设置其他所依赖该数据的缓存无效。
+
+  ```java
+  public static volatile boolean flag = true;
+  ```
+
+  
+
+#### 6、lockSupport工具类 
+
++  `LockSupport`是`concurrent`包中一个工具类，不支持构造，提供了一堆`static`方法，主要完成相应线程的阻塞或者唤醒的工作。
+
++ `park()、unpark(thread)` 是比较常用的方法
+  + `park()` 用于线程的阻塞工作
+  + `unpark(thread)`用于线程的唤醒工作。
+
+![ ](day21.assets/image-20220722213750133.png)
+
+```java
+public class ParkSupportTest {
+    public static void main(String[] args) {
+        Thread thread = new Thread(() -> {
+            System.out.println(Thread.currentThread().getName() + "   start...");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                System.out.println("被打断睡觉了...");
+                e.printStackTrace();
+            }
+            // 阻塞线程执行
+            LockSupport.park();
+            System.out.println(Thread.currentThread().getName() + "   end...");
+        });
+
+        thread.start();
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(Thread.currentThread().getName() + "唤醒 thread...");
+        LockSupport.unpark(thread);
+
+    }
+}
+
+
+
+Connected to the target VM, address: '127.0.0.1:51909', transport: 'socket'
+Thread-0   start...
+main唤醒 thread...
+Thread-0   end...
+Disconnected from the target VM, address: '127.0.0.1:51909', transport: 'socket'
+```
+
+
+
+#### 7、Lock锁和读写锁
+
+##### 7.1、Lock锁
+
++ `Lock`  是一个接口，我们主要研究它的实现子类 `ReentrantLock` 类，`ReentrantLock` 类主要使用到的方法是 `lock 和 unlock` 加锁和释放锁。
+
++ 注意：我们在加锁之后，防止代码执行出现异常导致锁不能被释放，所以通常会在 `finaly`代码块中释放锁。
+
+![image-20220722215623216](day21.assets/image-20220722215623216.png)
+
+![image-20220722215711851](day21.assets/image-20220722215711851.png)
+
++ 举个例子，通过 ``ReentrantLock` 类` 来实现多线程窗口售票问题。
+
+  ```java
+  package com.ilovesshan.day21;
+  
+  import java.util.concurrent.locks.Lock;
+  import java.util.concurrent.locks.ReentrantLock;
+  
+  
+  public class ReentrantLockTicket {
+      public  static  final Lock reentrantLock = new ReentrantLock();
+  
+      public static int count = 100;
+  
+      public synchronized static void sale() {
+          // 加锁
+          reentrantLock.lock();
+          
+          try {
+              while (count > 0) {
+                  try {
+                      Thread.sleep(20);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+                  System.out.println(Thread.currentThread().getName() + "窗口卖票一张, 剩余: " + --count);
+              }
+          } catch (Exception e) {
+              e.printStackTrace();
+          } finally {
+              // 无论如何 都要保证释放锁
+              reentrantLock.unlock();
+          }
+      }
+  
+      public static void main(String[] args) {
+          new Thread(ReentrantLockTicket::sale, "窗口1").start();
+          new Thread(ReentrantLockTicket::sale, "窗口1").start();
+          new Thread(ReentrantLockTicket::sale, "窗口1").start();
+      }
+  }
+  ```
+
+  
+
+##### 7.2、读写锁
+
+#### 8、线程方法总结
