@@ -183,3 +183,6 @@
 + synchronization 锁升级的过程以及原理
 + 死锁和重入锁
 + wait和notify关键字
++ interrupt 和 线程退出
++ lockSupport
++ 线程方法总结
