@@ -170,5 +170,11 @@ https://blog.csdn.net/mulinsen77/article/details/84583716
 
 ##### 5、lock和tryLock区别
 
-+ 
++ `lock` 获取锁是走的是：公平锁的机制，若有可用锁，则获取该锁并返回true，否则返回false，不会有延迟或等待；
+
+  
+
++ `tryLock`获取锁是走的是：非公平锁的机制，`tryLock(long timeout, TimeUnit unit)`可以增加时间限制，如果超过了指定的时间还没获得锁，则返回 false。若有可用锁，则获取该锁并返回true，否则会一直等待直到获取可用锁。
+
+  
 
