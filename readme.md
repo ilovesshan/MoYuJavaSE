@@ -187,3 +187,11 @@
 + lockSupport 工具类
 + Lock锁和读写锁
 + 线程方法总结
+
+### JavaSE 摸鱼第22天...
+
++ 并发编程的三大特征
++ 证明volatile不具备原子性
++ Lock锁原理-cas和aqs
++ 公平锁和非公平锁区别
++ lock和tryLock区别
