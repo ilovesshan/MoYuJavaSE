@@ -979,3 +979,101 @@ Process finished with exit code 0
 
 
 #### 10、单例模式-双重锁
+
+回忆之前学过的单例模式：
+
+1、饿汉模式
+
+```java
+public class SingleTon {
+    static SingleTon mSingleTon = new SingleTon();
+
+    private SingleTon() {
+    }
+
+    public static SingleTon getInstance() {
+        return mSingleTon;
+    }
+}
+```
+
+2、懒汉式
+
+```java
+class SingleTon {
+    static SingleTon1 mSingleTon;
+
+    private SingleTon() {
+    }
+
+    public static SingleTon getInstance() {
+        if (mSingleTon == null) {
+            mSingleTon = new SingleTon();
+        }
+        return mSingleTon;
+    }
+}
+```
+
+
+
+3、懒汉式 - 匿名内部类
+
+```java
+class SingleTon {
+    private SingleTon() {
+    }
+
+    public static SingleTon getInstance() {
+        return SingleTonInnerHolder.mSingleTon;
+    }
+
+    static class SingleTonInnerHolder {
+        static SingleTon mSingleTon = new SingleTon();
+    }
+}
+```
+
+4、懒汉式 - 枚举内部类
+
+```java
+class SingleTon {
+    private SingleTon() {
+    }
+
+    public static SingleTon getInstance() {
+        return SingleTonInnerHolder.INSTANCE.mSingleTon;
+    }
+
+    enum SingleTonInnerHolder {
+        INSTANCE;
+        private final SingleTon mSingleTon;
+
+        SingleTonInnerHolder() {
+            mSingleTon = new SingleTon();
+        }
+    }
+}
+```
+
+5、、懒汉式 -双重锁
+
+```java
+class SingleTon {
+    static SingleTon mSingleTon;
+
+    private SingleTon() {
+    }
+
+    public static SingleTon getInstance() {
+        if (mSingleTon == null) {
+            synchronized (SingleTon.class) {
+                if (mSingleTon == null) {
+                    mSingleTon = new SingleTon();
+                }
+            }
+        }
+        return mSingleTon;
+    }
+}
+```
