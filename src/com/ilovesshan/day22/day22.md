@@ -644,7 +644,93 @@ Process finished with exit code 0
 
 
 
+#### 8、线程工厂
+
+在JDK的源码使用工厂模式，ThreadFactory就是其中一种。
+
+设想这样一种场景，我们需要一个线程池，并且对于线程池中的线程对象，赋予统一的线程优先级、统一的名称、甚至进行统一的业务处理或和业务方面的初始化工作，这时工厂方法就是最好用的方法了。
+
+##### 8.1、分析 `DefaultThreadFactory` 源码
+
+```java
+static class DefaultThreadFactory implements ThreadFactory {
+        private static final AtomicInteger poolNumber = new AtomicInteger(1);
+        private final ThreadGroup group;
+        private final AtomicInteger threadNumber = new AtomicInteger(1);
+        private final String namePrefix;
+
+        DefaultThreadFactory() {
+            SecurityManager s = System.getSecurityManager();
+            group = (s != null) ? s.getThreadGroup() :
+                                  Thread.currentThread().getThreadGroup();
+            namePrefix = "pool-" +
+                          poolNumber.getAndIncrement() +
+                         "-thread-";
+        }
+
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(group, r,
+                                  namePrefix + threadNumber.getAndIncrement(),
+                                  0);
+            if (t.isDaemon())
+                t.setDaemon(false);
+            if (t.getPriority() != Thread.NORM_PRIORITY)
+                t.setPriority(Thread.NORM_PRIORITY);
+            return t;
+        }
+    }
+```
+
+##### 8.2、自定义线程工厂
+
+```java
+// 自定义线程工厂
+class MyThreadFactory implements ThreadFactory {
+    private static final AtomicInteger poolNumber = new AtomicInteger(1);
+    private final String namePrefix;
+
+    // 自己定义线程的名字 方便排查
+    MyThreadFactory(String prefix) {
+        namePrefix = "pool-" + prefix + poolNumber.getAndIncrement();
+    }
+
+    public Thread newThread(Runnable r) {
+        Thread t = new Thread(null, r, namePrefix, 0);
+        if (t.isDaemon())
+            t.setDaemon(false);
+        if (t.getPriority() != Thread.NORM_PRIORITY)
+            t.setPriority(Thread.NORM_PRIORITY);
+        return t;
+    }
+
+}
+```
 
 
 
+可以通过 Jdk的工具 `E:\workspace\env\jdk1.8.0_181\bin\jvisualvm.exe` 进行线程监视
 
+![image-20220724141130891](day22.assets/image-20220724141130891.png)
+
+
+
+##### 8.3、第三方线程工厂工具
+
+我们自定义的线程仅仅就是更改了线程名字而已，还有其他的特殊特殊情况需要考虑，为此 `Goole` 和 `apache ` 都提供了一个线程工厂工具类，方便我们自定义线程的名字。
+
++ google 提供的 ThreadFactory  【https://repo1.maven.org/maven2/com/google/guava/guava/30.1.1-jre/】
++ apache 提供的BasicThreadFactory  【https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.12.0/】
+
+```java
+// google 提供的线程工厂
+ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("dev-google").build();
+
+// apache 提供的线程工厂
+BasicThreadFactory factory = new BasicThreadFactory.Builder().namingPattern("dev-apache").build();
+```
+
+
+
+![image-20220724142639024](day22.assets/image-20220724142639024.png)
+
+![image-20220724143119149](day22.assets/image-20220724143119149.png)
