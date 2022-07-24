@@ -247,6 +247,404 @@ Process finished with exit code 0
 
 #### 7、线程池
 
-##### 7.1、`java` 提供四大的线程池
+##### 7.1、java四大线程池
 
-##### 7.2、自定义线程池
+这四个线程池都有共同的方法：
+
++ 通过 `service.submit(Runnable r) ` 来提交任务
++ 通过 `service.shutdown()` 结束任务(会等任务全部执行完毕)
++ 通过 `service.shutdownNow()` 立即结束任务
+
+`Executors.newFixedThreadPool()` : 创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。
+
++ 可以看到结果是：每5个一组打印的，因为线程池中的线程只有 5个，最多同时只能5个一起执行任务
+
+  ```java
+  import java.util.concurrent.ExecutorService;
+  import java.util.concurrent.Executors;
+  
+  /**
+   * Created with IntelliJ IDEA.
+   *
+   * @author: ilovesshan
+   * @date: 2022/7/24
+   * @description: 创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。
+   */
+  
+  public class FixedThreadPoolTest {
+      public static void main(String[] args) throws InterruptedException {
+          ExecutorService service = Executors.newFixedThreadPool(5);
+  
+          for (int i = 0; i < 100; i++) {
+              int finalI = i;
+              service.submit(() -> {
+                  try {
+                      Thread.sleep(2000);
+                      System.out.println("********" + finalI + "*********");
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+              });
+          }
+      }
+  }
+  
+  ```
+
+  
+
+`Executors.newScheduledThreadPool()`:创建一个可定期或者延时执行任务的定长线程池，支持定时及周期性任务执行。
+
++ 该线程池的线程如果都处于空天状态了，如果想立即就销毁掉(main方法退出)，需要调用一下 `shutdown` 方法。
+
+  ```java
+  package com.ilovesshan.day22;
+  
+  import java.util.concurrent.Executors;
+  import java.util.concurrent.ScheduledExecutorService;
+  
+  /**
+   * Created with IntelliJ IDEA.
+   *
+   * @author: ilovesshan
+   * @date: 2022/7/24
+   * @description: 创建一个可定期或者延时执行任务的定长线程池，支持定时及周期性任务执行。
+   */
+  
+  public class ScheduledThreadPoolTest {
+  
+      public static void main(String[] args) {
+          ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
+          for (int i = 0; i < 50; i++) {
+              int finalI = i;
+              service.submit(() -> {
+                  try {
+                      Thread.sleep(2000);
+                      System.out.println("********" + finalI + "*********");
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+              });
+          }
+  
+          service.shutdown();
+      }
+  }
+  
+  ```
+
+  
+
+`Executors.newCachedThreadPool()`:创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。 
+
++ 需要多少线程就创建多少线程放到线程池中去做事情，做完之后，一段时间(一分钟)没任务就自动回收了。
+
+  ![image-20220724115324040](day22.assets/image-20220724115324040.png)
+
+  ```java
+  package com.ilovesshan.day22.pool;
+  
+  import java.util.concurrent.ExecutorService;
+  import java.util.concurrent.Executors;
+  
+  /**
+   * Created with IntelliJ IDEA.
+   *
+   * @author: ilovesshan
+   * @date: 2022/7/24
+   * @description: 创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。 
+   */
+  
+  public class CachedThreadPoolTest {
+  
+      public static void main(String[] args) {
+          ExecutorService service = Executors.newCachedThreadPool();
+          for (int i = 0; i < 50; i++) {
+              int finalI = i;
+              service.submit(() -> {
+                  try {
+                      Thread.sleep(2000);
+                      System.out.println("********" + finalI + "*********");
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+              });
+          }
+      }
+  }
+  
+  ```
+
+  
+
+
+
+`Executors.newSingleThreadScheduledExecutor()`:创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。
+
++ 一次只能执行一个任务，线程池中只有一个线程
+
+  ![image-20220724115747096](day22.assets/image-20220724115747096.png)
+
+  
+
+  ```java
+  package com.ilovesshan.day22.pool;
+  
+  import java.util.concurrent.ExecutorService;
+  import java.util.concurrent.Executors;
+  
+  /**
+   * Created with IntelliJ IDEA.
+   *
+   * @author: ilovesshan
+   * @date: 2022/7/24
+   * @description: 创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。
+   */
+  
+  public class SingleThreadScheduledExecutorTest {
+  
+      public static void main(String[] args) {
+          ExecutorService service = Executors.newSingleThreadExecutor();
+          for (int i = 0; i < 50; i++) {
+              int finalI = i;
+              service.submit(() -> {
+                  try {
+                      Thread.sleep(2000);
+                      System.out.println("********" + finalI + "*********");
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+              });
+          }
+      }
+  }
+  
+  ```
+
+
+
+##### 7.2、线程池源码分析
+
+上诉四个线程池在进行构造的时候，都会调用 `ThreadPoolExecutor` 的构造方法。
+
++ 调用 `ThreadPoolExecutor` 构造器
+
+  ![image-20220724120447482](day22.assets/image-20220724120447482.png)
+
+  
+
+  ![image-20220724120431467](day22.assets/image-20220724120431467.png)
+
+  
+
+  ![image-20220724120417137](day22.assets/image-20220724120417137.png)
+
+  
+
++ `Executors.newScheduledThreadPool()`  间接性的调用 `ThreadPoolExecutor` 构造器
+
+  ![image-20220724120923505](day22.assets/image-20220724120923505.png)
+
++ `ThreadPoolExecutor` 构造器参数：
+
+  1、`corePoolSize` ： 线程池中线程数量
+
+  
+
+  2、`maximumPoolSize`：线程池中线程最大数量
+
+  
+
+  3、`keepAliveTime`：线程在无任务状态下，经过 `n`段时间后会被自动会收。
+
+  
+
+  4、`TimeUnit`：时间单位，同于描述 `keepAliveTime` 。
+
+  
+
+  5、`BlockingQueue<Runnable> workQueue` ：暂时未被线程执行的任务存放的队列
+
+  
+
+  6、`ThreadFactory threadFactory`：线程工厂， `ThreadFactory` 是一个接口，里面有一个抽象方法 :`Thread newThread(Runnable r)`
+
+   
+
+  7、`RejectedExecutionHandler handler`:拒绝策略，当线程池数量达到一定量之后，线程队列数量也放不下了，部分的任务会被拒绝。`RejectedExecutionHandler ` 是一个接口，里面有一个抽象方法 :`void rejectedExecution(Runnable r, ThreadPoolExecutor executor)void rejectedExecution(Runnable r, ThreadPoolExecutor executor)` 
+
+  
+
+  ```java
+  	/**
+       * Creates a new {@code ThreadPoolExecutor} with the given initial
+       * parameters.
+       *
+       * @param corePoolSize the number of threads to keep in the pool, even
+       *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
+       * @param maximumPoolSize the maximum number of threads to allow in the
+       *        pool
+       * @param keepAliveTime when the number of threads is greater than
+       *        the core, this is the maximum time that excess idle threads
+       *        will wait for new tasks before terminating.
+       * @param unit the time unit for the {@code keepAliveTime} argument
+       * @param workQueue the queue to use for holding tasks before they are
+       *        executed.  This queue will hold only the {@code Runnable}
+       *        tasks submitted by the {@code execute} method.
+       * @param threadFactory the factory to use when the executor
+       *        creates a new thread
+       * @param handler the handler to use when execution is blocked
+       *        because the thread bounds and queue capacities are reached
+       * @throws IllegalArgumentException if one of the following holds:<br>
+       *         {@code corePoolSize < 0}<br>
+       *         {@code keepAliveTime < 0}<br>
+       *         {@code maximumPoolSize <= 0}<br>
+       *         {@code maximumPoolSize < corePoolSize}
+       * @throws NullPointerException if {@code workQueue}
+       *         or {@code threadFactory} or {@code handler} is null
+       */
+  
+  public ThreadPoolExecutor(int corePoolSize,
+                            int maximumPoolSize,
+                            long keepAliveTime,
+                            TimeUnit unit,
+                            BlockingQueue<Runnable> workQueue,
+                            ThreadFactory threadFactory,
+                            RejectedExecutionHandler handler) {
+      if (corePoolSize < 0 ||
+          maximumPoolSize <= 0 ||
+          maximumPoolSize < corePoolSize ||
+          keepAliveTime < 0)
+          throw new IllegalArgumentException();
+      if (workQueue == null || threadFactory == null || handler == null)
+          throw new NullPointerException();
+      this.acc = System.getSecurityManager() == null ?
+          null :
+      AccessController.getContext();
+      this.corePoolSize = corePoolSize;
+      this.maximumPoolSize = maximumPoolSize;
+      this.workQueue = workQueue;
+      this.keepAliveTime = unit.toNanos(keepAliveTime);
+      this.threadFactory = threadFactory;
+      this.handler = handler;
+  }
+  ```
+
+
+
+##### 7.3、自定义线程池
+
+可以仿照jdk中原生的线程池来创建自定义线程池
+
+```java
+package com.ilovesshan.day22.pool;
+
+import java.util.concurrent.*;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/24
+ * @description: 自定义线程池
+ */
+public class CustomThreadPool {
+
+    public static void main(String[] args) {
+        ThreadPool threadPool = new ThreadPool(
+            5,
+            10,
+            0,
+            TimeUnit.MINUTES,
+            // 10 队列只能放10个任务 多余的会被拒绝掉
+            new LinkedBlockingQueue<Runnable>(10),
+            new MyThreadFactory(),
+            new MyRejectedExecutionHandler()
+        );
+
+        for (int i = 0; i < 25; i++) {
+            int finalI = i;
+            Thread thread = new Thread(() -> {
+                try {
+                    System.out.println("*************" + finalI + "*******************");
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            threadPool.submit(thread);
+        }
+
+        threadPool.shutdown();
+    }
+
+}
+
+
+class ThreadPool extends ThreadPoolExecutor {
+    public ThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
+        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
+    }
+}
+
+
+// 自定义线程工厂
+class MyThreadFactory implements ThreadFactory {
+
+    @Override
+    public Thread newThread(Runnable r) {
+        return new Thread(r);
+    }
+}
+
+
+// 自定义拒绝策略
+class MyRejectedExecutionHandler implements RejectedExecutionHandler {
+
+    @Override
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+        // 在这里为 被拒绝的任务做一些补偿
+        System.out.println("任务太多了,做不完....");
+    }
+}
+
+
+
+Connected to the target VM, address: '127.0.0.1:52114', transport: 'socket'
+*************2*******************
+*************4*******************
+*************3*******************
+*************1*******************
+*************0*******************
+*************16*******************
+*************15*******************
+*************17*******************
+*************18*******************
+任务太多了,做不完....
+任务太多了,做不完....
+任务太多了,做不完....
+任务太多了,做不完....
+任务太多了,做不完....
+*************19*******************
+*************5*******************
+*************7*******************
+*************6*******************
+*************10*******************
+*************8*******************
+*************9*******************
+*************11*******************
+*************12*******************
+*************13*******************
+*************14*******************
+Disconnected from the target VM, address: '127.0.0.1:52114', transport: 'socket'
+
+Process finished with exit code 0
+```
+
+
+
+
+
+
+
