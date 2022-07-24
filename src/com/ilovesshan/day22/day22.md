@@ -1,6 +1,6 @@
 ### JavaSE 摸鱼第22天...
 
-##### 1、并发编程的三大特征
+#### 1、并发编程的三大特征
 
 ##### 1.1、原子性
 
@@ -24,7 +24,7 @@
 
 
 
-##### 2、 证明volatile不具备原子性
+#### 2、 证明volatile不具备原子性
 
 + 下面这段代码，貌似每次执行的结果都是 `500`，这也许只是碰巧，因为线程执行的速度很快，并没有造成堵塞。
 
@@ -101,7 +101,7 @@
 
 
 
-##### 3、 Lock锁原理-cas和aqs
+#### 3、 Lock锁原理-cas和aqs
 
 上一章节中我们了解过 `Lock`接口的一个实现子类 `ReentrantLock(可重入锁)`,里面主要有两个常用的方法 `lock` 和 `unlock`，控制线挂起和唤醒操作。而 `ReentrantLock` 类主要也是通过 `cas` 和 `aqs` 来实现的。
 
@@ -131,7 +131,7 @@ https://blog.csdn.net/mulinsen77/article/details/84583716
 
   ![image-20220723154140722](day22.assets/image-20220723154140722.png)
 
-##### 4、公平锁和非公平锁区别
+#### 4、公平锁和非公平锁区别
 
 ##### 4.1、分析一下 `ReentrantLock`类结构
 
@@ -168,7 +168,7 @@ https://blog.csdn.net/mulinsen77/article/details/84583716
 
 
 
-##### 5、lock和tryLock区别
+#### 5、lock和tryLock区别
 
 + `lock` 获取锁是走的是：公平锁的机制，若有可用锁，则获取该锁并返回true，否则返回false，不会有延迟或等待；
 
@@ -177,4 +177,69 @@ https://blog.csdn.net/mulinsen77/article/details/84583716
 + `tryLock`获取锁是走的是：非公平锁的机制，`tryLock(long timeout, TimeUnit unit)`可以增加时间限制，如果超过了指定的时间还没获得锁，则返回 false。若有可用锁，则获取该锁并返回true，否则会一直等待直到获取可用锁。
 
   
+
+#### 6、原子类
+
+`java` 提供的在多线程环境下，能够保证原子性的类。
+
+##### 6.1、基本原子类
+
+`AtomicInteger、AtomicLong、AtomicBoolean`
+
+```java
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class AtomicIntegerTest {
+    static AtomicInteger mAtomicInteger = new AtomicInteger(0);
+
+    public static void add() {
+        mAtomicInteger.set(mAtomicInteger.get() + 1);
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            new Thread(AtomicIntegerTest::add).start();
+            new Thread(AtomicIntegerTest::add).start();
+            new Thread(AtomicIntegerTest::add).start();
+        }
+
+
+        Thread.sleep(3000);
+
+        System.out.println("mAtomicInteger.get() = " + mAtomicInteger.get());
+    }
+}
+
+
+
+Connected to the target VM, address: '127.0.0.1:50502', transport: 'socket'
+mAtomicInteger.get() = 30
+Disconnected from the target VM, address: '127.0.0.1:50502', transport: 'socket'
+
+Process finished with exit code 0
+```
+
+
+
+
+
+##### 6.2、数组类型原子类
+
+`AtomicIntegerArray、AtomicLongArray、AtomicReferenceArray`
+
+##### 6.3、引用类型原子类
+
+`AtomicReference、AtomicStampedReference、AtomicMarkableReference`
+
+##### 6.4、升级类型原子类
+
+`AtomicIntegerfieldupdater、AtomicLongFieldUpdater、AtomicReferenceFieldUpdater`
+
+##### 6.5、累加器
+
+`LongAdder、DoubleAdder`
+
+##### 6.6、积累器
+
+`LongAccumulator、DoubleAccumulator`
 
