@@ -734,3 +734,248 @@ BasicThreadFactory factory = new BasicThreadFactory.Builder().namingPattern("dev
 ![image-20220724142639024](day22.assets/image-20220724142639024.png)
 
 ![image-20220724143119149](day22.assets/image-20220724143119149.png)
+
+
+
+#### 9、线程同步工具
+
++ 倒计时器、循环栅栏 他们主要运用的场景：一共有 A，B，C三个线程，但是主线程需要等 这三个线程执行完毕再执行，也就是多个线程同步的问题。在前面的学习过程中、可以通过调用 线程实例的`join` 方法来实现这种需求。下面我们通过倒计时器和循环栅栏优雅的来实现这个需求。
+
+  ```java
+  public class ThreadSync {
+      static void todo() {
+          System.out.println(Thread.currentThread().getName() + " 开始执行...");
+          try {
+              Thread.sleep((new Random().nextInt(5000)));
+          } catch (InterruptedException e) {
+              e.printStackTrace();
+          }
+          System.out.println(Thread.currentThread().getName() + " 执行结束...");
+      }
+  }
+  ```
+
+  
+
+  ```java
+  package com.ilovesshan.day22.threadSync;
+  
+  import java.util.Random;
+  
+  /**
+   * Created with IntelliJ IDEA.
+   *
+   * @author: ilovesshan
+   * @date: 2022/7/24
+   * @description:
+   */
+  class JoinText {
+      
+      public static void main(String[] args) throws InterruptedException {
+          // task 1
+          Thread t1 = new Thread(ThreadSync::todo, "A线程");
+          t1.start();
+          t1.join();
+  
+  
+          // task 2
+          Thread t2 = new Thread(ThreadSync::todo, "B线程");
+          t2.start();
+          t2.join();
+  
+  
+          // task 3
+          Thread t3 = new Thread(ThreadSync::todo, "C线程");
+          t3.start();
+          t3.join();
+  
+          System.out.println("主线程开始工作了...");
+      }
+  }
+  
+  
+  Connected to the target VM, address: '127.0.0.1:54117', transport: 'socket'
+  A线程 开始执行...
+  A线程 执行结束...
+  B线程 开始执行...
+  B线程 执行结束...
+  C线程 开始执行...
+  C线程 执行结束...
+  主线程开始工作了...
+  Disconnected from the target VM, address: '127.0.0.1:54117', transport: 'socket'
+  
+  Process finished with exit code 0
+  ```
+
+  
+
+#####  9.1、倒计时器
+
+```java
+import java.util.concurrent.ExecutorService;
+
+class CountDownTest {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        CountDownLatch downLatch = new CountDownLatch(3);
+        ExecutorService service = Executors.newFixedThreadPool(3);
+
+        // task 1
+        Runnable t1 = () -> {
+            try {
+                Thread.sleep((new Random().nextInt(5000)));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + " 执行结束...");
+            downLatch.countDown();
+        };
+
+
+        // task 2
+        Runnable t2 = () -> {
+            try {
+                Thread.sleep((new Random().nextInt(5000)));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + " 执行结束...");
+            downLatch.countDown();
+        };
+
+
+        // task 3
+        Runnable t3 = () -> {
+            try {
+                Thread.sleep((new Random().nextInt(5000)));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + " 执行结束...");
+            downLatch.countDown();
+        };
+
+        service.submit(t1);
+        service.submit(t2);
+        service.submit(t3);
+
+        downLatch.await();
+        System.out.println("主线程开始工作了...");
+        service.shutdown();
+    }
+}
+```
+
+
+
+##### 9.2、循环栅栏
+
+```java
+import java.util.concurrent.CyclicBarrier;
+
+class CyclicBarrierTest {
+    public static void main(String[] args) {
+        ExecutorService service = Executors.newFixedThreadPool(3);
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(3, () -> {
+            System.out.println("主线程开始工作了...");
+        });
+
+
+        // task 1
+        Runnable t1 = () -> {
+            try {
+                Thread.sleep((new Random().nextInt(5000)));
+                System.out.println(Thread.currentThread().getName() + " 执行结束...");
+                cyclicBarrier.await();
+            } catch (InterruptedException | BrokenBarrierException e) {
+                e.printStackTrace();
+            }
+        };
+
+
+        // task 2
+        Runnable t2 = () -> {
+            try {
+                Thread.sleep((new Random().nextInt(5000)));
+                System.out.println(Thread.currentThread().getName() + " 执行结束...");
+                cyclicBarrier.await();
+            } catch (InterruptedException | BrokenBarrierException e) {
+                e.printStackTrace();
+            }
+        };
+
+
+        // task 3
+        Runnable t3 = () -> {
+            try {
+                Thread.sleep((new Random().nextInt(5000)));
+                System.out.println(Thread.currentThread().getName() + " 执行结束...");
+                cyclicBarrier.await();
+            } catch (InterruptedException | BrokenBarrierException e) {
+                e.printStackTrace();
+            }
+        };
+
+        service.submit(t1);
+        service.submit(t2);
+        service.submit(t3);
+
+    }
+}
+```
+
+
+
+##### 9.3、信号量
+
+Semaphore信号量  可以做一些限流工作，例如：停车场停车，公共厕所位，等等等...
+
+```java
+import java.util.concurrent.Semaphore;
+
+class SemaphoreTest {
+    public static void main(String[] args) throws InterruptedException {
+        // 声明2个信号量(2个令牌)
+        Semaphore semaphore = new Semaphore(2);
+
+        for (int i = 0; i < 5; i++) {
+            new Thread(() -> {
+                try {
+                    // 尝试获取令牌
+                    semaphore.acquire();
+                    // 模拟进入厕所 有令牌就能进入 没有就排队等候
+                    System.out.println(Thread.currentThread().getName() + "进入厕所...");
+                    Thread.sleep((new Random().nextInt(5000)));
+                    System.out.println(Thread.currentThread().getName() + "离开厕所...");
+                    // 回收令牌
+                    semaphore.release();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+    }
+}
+
+
+Connected to the target VM, address: '127.0.0.1:55003', transport: 'socket'
+Thread-1进入厕所...
+Thread-0进入厕所...
+Thread-1离开厕所...
+Thread-2进入厕所...
+Thread-0离开厕所...
+Thread-4进入厕所...
+Thread-4离开厕所...
+Thread-3进入厕所...
+Thread-2离开厕所...
+Thread-3离开厕所...
+Disconnected from the target VM, address: '127.0.0.1:55003', transport: 'socket'
+
+Process finished with exit code 0
+    
+```
+
+
+
+#### 10、单例模式-双重锁
