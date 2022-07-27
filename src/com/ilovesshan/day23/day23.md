@@ -125,9 +125,196 @@
 
 + 霍夫曼树(用于信息编码)：带权路径最短的二叉树称为霍夫曼树或最优二叉树。
 
-#### 2、二叉树遍历方式
+#### 3、二叉树遍历方式
 
-+ 前序遍历
-+ 中序遍历
-+ 后续编译
-+ 层级遍历
+<img src="day23.assets/image-20220727220935893.png" alt="image-20220727220935893" style="zoom:80%;" />
+
+##### 3.1、前序遍历
+
+##### 3.2、前序遍历
+
+##### 3.3、前序遍历
+
+##### 3.4、层级遍历
+
+
+
+#### 4、实现二叉树的遍历方式
+
+构建`Node` 节点
+
+```java
+public class Node {
+    // 数据
+    private Integer data;
+    // 左节点
+    private Node left;
+    // 右节点
+    private Node right;
+
+    
+    public Node() {}
+
+    public Node(Integer data) {
+        this.data = data;
+    }
+
+    public Node(Integer data, Node left, Node right) {
+        this.data = data;
+        this.left = left;
+        this.right = right;
+    }
+
+    // 省略 getter和setter
+}
+```
+
+通过Node节点构建一棵树
+
+```java
+package com.ilovesshan.day23;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/27
+ * @description: 通过Node节点构建一棵树
+ */
+public class CreateTree {
+
+    public static Node create() {
+        // 根节点
+        Node n1 = new Node(1);
+
+        Node n2 = new Node(2);
+        Node n3 = new Node(3);
+        Node n4 = new Node(4);
+        Node n5 = new Node(5);
+        Node n6 = new Node(6);
+        Node n7 = new Node(7);
+
+        n1.setLeft(n2);
+        n1.setRight(n3);
+
+        n2.setLeft(n4);
+        n2.setRight(n5);
+
+        n3.setLeft(n6);
+        n3.setRight(n7);
+
+        return n1;
+    }
+}
+
+```
+
+
+
+##### 4.1、递归实现遍历
+
+递归遍历二叉树，实现前序遍历、中序遍历、后序遍历
+
+```java
+package com.ilovesshan.day23;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/27
+ * @description: 递归遍历二叉树，实现前序遍历、中序遍历、后序遍历
+ */
+
+public class RecursivelyWalkTheBinaryTree {
+
+    // 前序遍历
+    public static void preRecursive(Node node) {
+        if (node == null) {
+            return;
+        }
+        System.out.println(node.getData());
+        preRecursive(node.getLeft());
+        preRecursive(node.getRight());
+    }
+
+    // 中序遍历
+    public static void inRecursive(Node node) {
+        if (node == null) {
+            return;
+        }
+        inRecursive(node.getLeft());
+        System.out.println(node.getData());
+        inRecursive(node.getRight());
+    }
+
+    // 后序遍历
+    public static void postRecursive(Node node) {
+        if (node == null) {
+            return;
+        }
+        postRecursive(node.getLeft());
+        postRecursive(node.getRight());
+        System.out.println(node.getData());
+    }
+
+
+    public static void main(String[] args) {
+        Node tree = CreateTree.create();
+
+        // 前序遍历
+        System.out.println("前序遍历结果: ");
+        RecursivelyWalkTheBinaryTree.preRecursive(tree);
+
+
+        // 中序遍历
+        System.out.println("中序遍历结果: ");
+        RecursivelyWalkTheBinaryTree.inRecursive(tree);
+
+
+        // 后序遍历
+        System.out.println("后序遍历结果: ");
+        RecursivelyWalkTheBinaryTree.postRecursive(tree);
+    }
+
+}
+
+
+
+
+前序遍历结果: 
+1
+2
+4
+5
+3
+6
+7
+    
+中序遍历结果: 
+4
+2
+5
+1
+6
+3
+7
+    
+后序遍历结果: 
+4
+5
+2
+6
+7
+3
+1
+    
+Disconnected from the target VM, address: '127.0.0.1:55401', transport: 'socket'
+
+Process finished with exit code 0
+
+```
+
+##### 4.2、栈实现遍历
+
+##### 4.3、 队列实现遍历
