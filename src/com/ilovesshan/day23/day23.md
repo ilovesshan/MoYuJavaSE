@@ -317,4 +317,103 @@ Process finished with exit code 0
 
 ##### 4.2、栈实现遍历
 
+栈实现遍历二叉树 先序遍历
+
+```java
+package com.ilovesshan.day23;
+
+import java.util.Stack;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/27
+ * @description: 栈实现遍历二叉树 先序遍历
+ */
+public class StackTraversesTheBinaryTree {
+    public static void main(String[] args) {
+        Node tree = CreateTree.create();
+
+        Stack<Node> stack = new Stack<>();
+
+        stack.push(tree);
+
+        while (!stack.isEmpty()) {
+            Node currentNode = stack.pop();
+            if (currentNode != null) {
+                System.out.println(currentNode.getData());
+                stack.push(currentNode.getRight());
+                stack.push(currentNode.getLeft());
+            }
+        }
+    }
+}
+
+
+
+Connected to the target VM, address: '127.0.0.1:55637', transport: 'socket'
+1
+2
+4
+5
+3
+6
+7
+Disconnected from the target VM, address: '127.0.0.1:55637', transport: 'socket'
+
+Process finished with exit code 0
+```
+
+
+
 ##### 4.3、 队列实现遍历
+
+队列实现遍历二叉树 层次遍历
+
+```java
+package com.ilovesshan.day23;
+
+import com.ilovesshan.day18.utils.SuperArray;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/27
+ * @description: 队列实现遍历二叉树 层次遍历
+ */
+
+public class QueueTraversesTheBinaryTree {
+    public static void main(String[] args) {
+        Node tree = CreateTree.create();
+        SuperArray<Node> superLinked = new SuperArray<>();
+        superLinked.add(tree);
+
+        while (superLinked.getLength() > 0) {
+            Node currentNode = superLinked.get(0);
+            if (currentNode != null) {
+                superLinked.remove(0);
+                System.out.println(currentNode.getData());
+                superLinked.add(currentNode.getLeft());
+                superLinked.add(currentNode.getRight());
+            }
+        }
+    }
+}
+
+
+
+Connected to the target VM, address: '127.0.0.1:56164', transport: 'socket'
+1
+2
+3
+4
+5
+6
+7
+Disconnected from the target VM, address: '127.0.0.1:56164', transport: 'socket'
+
+Process finished with exit code 130
+
+```
