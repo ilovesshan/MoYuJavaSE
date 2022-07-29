@@ -367,7 +367,7 @@ Process finished with exit code 0
 
 
 
-##### 4.3、 队列实现遍历
+##### 4.3、队列实现遍历
 
 队列实现遍历二叉树 层次遍历
 
@@ -417,3 +417,115 @@ Disconnected from the target VM, address: '127.0.0.1:56164', transport: 'socket'
 Process finished with exit code 130
 
 ```
+
+
+
+#### 5、搜索二叉树查找
+
+构建树
+
+<img src="day23.assets/image-20220727232518708.png" alt="image-20220727232518708" style="zoom:80%;" />
+
+```java
+package com.ilovesshan.day23;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/27
+ * @description: 通过Node节点构建一棵树
+ */
+public class CreateTree {
+    public static Node createBinaryTree() {
+        // 根节点
+        Node n1 = new Node(10);
+
+        Node n2 = new Node(5);
+        Node n3 = new Node(2);
+        Node n4 = new Node(8);
+        Node n11 = new Node(9);
+        Node n5 = new Node(1);
+        Node n6 = new Node(20);
+        Node n7 = new Node(15);
+        Node n8 = new Node(30);
+        Node n9 = new Node(12);
+        Node n10 = new Node(40);
+
+        n1.setLeft(n2);
+        n1.setRight(n6);
+
+        n2.setLeft(n3);
+        n2.setRight(n4);
+
+        n3.setLeft(n5);
+
+        n4.setRight(n11);
+
+        n6.setLeft(n7);
+        n6.setRight(n8);
+
+        n7.setLeft(n9);
+        n8.setRight(n10);
+
+        return n1;
+    }
+
+}
+
+```
+
+
+
+查找
+
+```java
+package com.ilovesshan.day23;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/27
+ * @description: 搜索二叉树查找
+ */
+public class BinaryTreeSearch {
+
+    public static int findValue(Node node, int target) {
+        if (node != null) {
+            if (target > node.getData()) {
+                return findValue(node.getRight(), target);
+            } else if (target == node.getData()) {
+                return target;
+            } else {
+                return findValue(node.getLeft(), target);
+            }
+        }
+        return -1;
+    }
+
+    public static void main(String[] args) {
+        Node root = CreateTree.createBinaryTree();
+
+        int target1 = 10;
+        int i1 = BinaryTreeSearch.findValue(root, target1);
+        System.out.println("查找结果: " + i1);
+
+
+        int target2 = 100;
+        int i2 = BinaryTreeSearch.findValue(root, target2);
+        System.out.println("查找结果: " + i2);
+
+    }
+}
+
+
+
+Connected to the target VM, address: '127.0.0.1:56368', transport: 'socket'
+查找结果: 10
+查找结果: -1
+Disconnected from the target VM, address: '127.0.0.1:56368', transport: 'socket'
+
+Process finished with exit code 0
+```
+
