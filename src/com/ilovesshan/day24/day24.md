@@ -26,7 +26,9 @@ Map同属于java.util包中，是集合的一部分，但与Collection是相互�
 
 ##### 2.1、List接口基本使用
 
-`ArrayList`、`LinkedList` 、`Vector` 都实现了 `List` 接口，所以他们三个用法大差不差。
+`ArrayList`、`LinkedList` 、`Vector` 都实现了 `List` 接口，所以他们三个用法大差不差，特点 `有序可重复`
+
+
 
 + `List`  接口的常用方法：
 
@@ -265,6 +267,66 @@ Map同属于java.util包中，是集合的一部分，但与Collection是相互�
   
 
 ##### 2.2、Set基本使用
+
+`HashSet`、`ThreeSet` 都实现了 `Set` 接口，特点 `无序 不重复`
+
+
+
++ `HashSet`和`ThreeSet` 用法差不多，下面演示 `UseHashSet`
+
+  ```java
+  package com.ilovesshan.day23;
+  
+  import java.util.HashSet;
+  import java.util.Iterator;
+  
+  /**
+   * Created with IntelliJ IDEA.
+   *
+   * @author: ilovesshan
+   * @date: 2022/7/29
+   * @description: HashSet基本使用
+   */
+  public class UseHashSet {
+      public static void main(String[] args) {
+          HashSet<String> hashSet = new HashSet<>();
+  
+          // 添加元素
+          hashSet.add("5");
+          hashSet.add("4");
+          hashSet.add("5");
+          hashSet.add("3");
+          hashSet.add("2");
+          hashSet.add("1");
+          hashSet.add("0");
+          hashSet.add("a");
+          hashSet.add("a");
+          hashSet.add("b");
+          hashSet.add("c");
+          hashSet.add("d");
+          hashSet.add("e");
+          hashSet.add("f");
+  
+          // 无序 不重复
+          System.out.println(hashSet); // [0, 1, a, 2, b, 3, c, 4, d, 5, e, f]
+  
+  
+          hashSet.remove("a");
+          hashSet.remove("5");
+  
+          System.out.println(hashSet); // [0, 1, 2, b, 3, c, 4, d, e, f]
+  
+  
+          // 长度
+          System.out.println(hashSet.size()); // 10
+  
+          // 使用 Iterator 遍历
+          Iterator<String> iterator = hashSet.iterator();
+          while (iterator.hasNext()) {
+              System.out.println(iterator.next());
+          }
+      }
+  }
 
 ##### 2.3、Map基本使用
 
