@@ -1,3 +1,5 @@
+
+
 ### JavaSE 摸鱼第24天...
 
 #### 1、集合家族介绍
@@ -616,7 +618,197 @@ Map同属于java.util包中，是集合的一部分，但与Collection是相互�
 
 ##### 3.2、LinkedList 源码分析
 
+`LinkedList` 底层维护了一个双向链表，通过一类内部类 `Node` 将其关联起来。
 
++ **成员变量**
+
+  ```java
+  transient int size = 0;
+  transient Node<E> first;
+  transient Node<E> last;
+  ```
+
+
+
++ **2个构造方法**
+
+  ```java
+  // 无参构造
+  public LinkedList() {
+  }
+  
+  
+  // 可传入一个 实现Collection接口类
+  public LinkedList(Collection<? extends E> c) {
+      this();
+      addAll(c);
+  }
+  ```
+
+
+
++ **add方法( 头插、尾插)**
+
+  ```java
+  public boolean add(E e) {
+      linkLast(e);
+      return true;
+  }
+  ```
+
+  
+
+  ```java
+  // 头插
+  public void addFirst(E e) {
+      linkFirst(e);
+  }
+  
+  
+  private void linkFirst(E e) {
+      final Node<E> f = first;
+      final Node<E> newNode = new Node<>(null, e, f);
+      first = newNode;
+      if (f == null)
+          last = newNode;
+      else
+          f.prev = newNode;
+      size++;
+      modCount++;
+  }
+  
+  ```
+
+  ```java
+  
+  // 尾插
+  public void addLast(E e) {
+      linkLast(e);
+  }
+  
+  
+  void linkLast(E e) {
+      final Node<E> l = last;
+      final Node<E> newNode = new Node<>(l, e, null);
+      last = newNode;
+      if (l == null)
+          first = newNode;
+      else
+          l.next = newNode;
+      size++;
+      modCount++;
+  }
+  ```
+
+  
+
+  **remove方法**
+
+  
+
+  ```java
+  public E remove(int index) {
+      // 校验 index
+      checkElementIndex(index);
+      
+      // 根据Index获取元素 进行unlink
+      return unlink(node(index));
+  }
+  
+  
+  E unlink(Node<E> x) {
+      // assert x != null;
+      final E element = x.item;
+      final Node<E> next = x.next;
+      final Node<E> prev = x.prev;
+  
+      if (prev == null) {
+          first = next;
+      } else {
+          prev.next = next;
+          x.prev = null;
+      }
+  
+      if (next == null) {
+          last = prev;
+      } else {
+          next.prev = prev;
+          x.next = null;
+      }
+  
+      x.item = null;
+      size--;
+      modCount++;
+      return element;
+  }
+  
+  
+  ```
+
+  
+
+  ```java
+  
+  public E removeFirst() {
+      final Node<E> f = first;
+      if (f == null)  throw new NoSuchElementException();
+      return unlinkFirst(f);
+  }
+  
+  
+  
+  private E unlinkFirst(Node<E> f) {
+      // assert f == first && f != null;
+      final E element = f.item;
+      final Node<E> next = f.next;
+      f.item = null;
+      f.next = null; // help GC
+      first = next;
+      if (next == null)
+          last = null;
+      else
+          next.prev = null;
+      size--;
+      modCount++;
+      return element;
+  }
+  
+  ```
+
+  
+
+  
+
+  ```java
+  public E removeLast() {
+      final Node<E> l = last;
+      if (l == null)   throw new NoSuchElementException();
+      return unlinkLast(l);
+  }
+  
+  
+  private E unlinkLast(Node<E> l) {
+      // assert l == last && l != null;
+      final E element = l.item;
+      final Node<E> prev = l.prev;
+      l.item = null;
+      l.prev = null; // help GC
+      last = prev;
+      if (prev == null)
+          first = null;
+      else
+          prev.next = null;
+      size--;
+      modCount++;
+      return element;
+  }
+  ```
+
+  
+
+  
+
+​		
 
 #### 4、Set源码流程
 
