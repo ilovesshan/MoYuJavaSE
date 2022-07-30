@@ -806,9 +806,71 @@ Map同属于java.util包中，是集合的一部分，但与Collection是相互�
 
   
 
-  
-
-​		
-
 #### 4、Set源码流程
 
+`HashSet` 底层本质就是使用 `HashMap`做了一层封装.
+
+`HashSet` 不能保证元素的顺序，元素是无序的。
+
+**可以通过`HashSet`构造函数看出来**
+
+```java
+public HashSet() {
+    map = new HashMap<>();
+}
+
+
+public HashSet(Collection<? extends E> c) {
+    map = new HashMap<>(Math.max((int) (c.size()/.75f) + 1, 16));
+    addAll(c);
+}
+
+
+public HashSet(int initialCapacity, float loadFactor) {
+    map = new HashMap<>(initialCapacity, loadFactor);
+}
+
+
+public HashSet(int initialCapacity) {
+    map = new HashMap<>(initialCapacity);
+}
+
+```
+
+
+
+**`HashSet`部分方法源码**
+
+其实可以看得出来，`HashSet` 底层源码表面上不是太复杂，都是同过调用被封装一层的`HashMap` 的方法，学习 `HashSet`主要是得学习 `HashMap`，`HashMap` 搞定那么 `HashSet` 自然就OK了。
+
+```java
+// 返回Set长度
+public int size() {
+    return map.size();
+}
+
+// 是否是空
+public boolean isEmpty() {
+    return map.isEmpty();
+}
+
+// 是否包含某个元素
+public boolean contains(Object o) {
+    return map.containsKey(o);
+}
+
+// 添加元素 
+public boolean add(E e) {
+    return map.put(e, PRESENT)==null;
+}
+
+// 移除元素
+public boolean remove(Object o) {
+    return map.remove(o)==PRESENT;
+}
+
+// 清空元素
+public void clear() {
+    map.clear();
+}
+```
