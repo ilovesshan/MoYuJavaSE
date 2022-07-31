@@ -257,3 +257,205 @@ Disconnected from the target VM, address: '127.0.0.1:64608', transport: 'socket'
 Process finished with exit code 0
 ```
 
+
+
+#### 3、LinkedHashMap和LRU算法
+
+##### 3.1、LinkedHashMap和HashMap
+
+先看一个案例对比LinkedHashMap和HashMap
+
+```java
+package com.ilovesshan.day25;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class HashMapVsLinkedHashMap {
+    public static void main(String[] args) {
+        Map<String, String> hashMap = new HashMap<>();
+        Map<String, String> linkedHashMap = new LinkedHashMap<>();
+
+
+        hashMap.put("zs", "zhangsan");
+        hashMap.put("ls", "lisi");
+        hashMap.put("ww", "wangwu");
+        hashMap.put("zl", "zhaoliu");
+        hashMap.put("sq", "sunqi");
+
+
+        linkedHashMap.put("zs", "zhangsan");
+        linkedHashMap.put("ls", "lisi");
+        linkedHashMap.put("ww", "wangwu");
+        linkedHashMap.put("zl", "zhaoliu");
+        linkedHashMap.put("sq", "sunqi");
+
+
+        System.out.println(hashMap);
+        System.out.println(linkedHashMap);
+
+    }
+}
+
+
+
+Connected to the target VM, address: '127.0.0.1:49736', transport: 'socket'
+{ww=wangwu, zl=zhaoliu, ls=lisi, zs=zhangsan, sq=sunqi}
+{zs=zhangsan, ls=lisi, ww=wangwu, zl=zhaoliu, sq=sunqi}
+Disconnected from the target VM, address: '127.0.0.1:49736', transport: 'socket'
+
+Process finished with exit code 0
+
+```
+
+根据得到的结果发现：`hashMap` 是乱序的，获取到的数据排列顺序并不是存放时放进去的顺序，而 `LinkedHashMap` 刚好向和存放进去的顺序一致。
+
+原因是：`hashMap` 再计算具体存放数据的槽位时、本身就不能确定会按照什么顺序去放，而是根据特定的算法算出来的，可能再1号插槽也可能在2号插槽。而`LinkedHashMap`可以做到的原因是：`LinkedHashMap` 在 `HashMap`的基础之上，在内部维护了一个 链表，用来保存数据的先后顺序。
+
+```java
+static class Entry<K,V> extends HashMap.Node<K,V> {
+    Entry<K,V> before, after;
+    Entry(int hash, K key, V value, Node<K,V> next) {
+        super(hash, key, value, next);
+    }
+}
+```
+
+
+
+##### 3.2、LRU算法
+
+LRU全称是Least Recently Used，即最近最久未使用的意思。
+
+LRU算法的设计原则是：如果一个数据在最近一段时间没有被访问到，那么在将来它被访问的可能性也很小。也就是说，当限定的空间已存满数据时，应当把最久没有被访问到的数据淘汰。
+
+
+
+`使用 `LinkedHashMap`来玩一玩 LRU, 先了解一下LinkedHashMap` 有一个三个参数构造器
+
+```java
+// initialCapacity  默认容量 值默认是16
+// loadFactor       负载因子 默认是 0.75f
+// accessOrder      默认为false，即维护插入顺序，设置为true时，维护访问顺序
+
+public LinkedHashMap(int initialCapacity,   float loadFactor, boolean accessOrder) {
+    super(initialCapacity, loadFactor);
+    this.accessOrder = accessOrder;
+}
+```
+
+```java
+package com.ilovesshan.day25;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/31
+ * @description:
+ */
+public class MyLru {
+    public static void main(String[] args) {
+
+        Map<String, String> map = new LinkedHashMap<>(10, 0.75F, true);
+
+        map.put("zs", "zhangsan");
+        map.put("ls", "lisi");
+        map.put("ww", "wangwu");
+        map.put("zl", "zhaoliu");
+        map.put("sq", "sunqi");
+        System.out.println(map); // {zs=zhangsan, ls=lisi, ww=wangwu, zl=zhaoliu, sq=sunqi}
+
+        // 访问一次zl  看结果将"zl=zhaoliu"放到链表最后面
+        map.get("zl");
+        System.out.println(map); // {zs=zhangsan, ls=lisi, ww=wangwu, sq=sunqi, zl=zhaoliu}
+
+
+        // 再访问一次ls  看结果将"ls=lisi"放到链表最后面
+        map.get("ls");
+        System.out.println(map); // {zs=zhangsan, ww=wangwu, sq=sunqi, zl=zhaoliu, ls=lisi}
+
+
+        // 新加入两个 默认会被放到链表最后面
+        map.put("sb", "songba");
+        map.put("lj", "laojiu");
+
+        System.out.println(map); // {zs=zhangsan, ww=wangwu, sq=sunqi, zl=zhaoliu, ls=lisi, sb=songba, lj=laojiu}
+    }
+}
+
+```
+
+
+
+自己实现一个LRU算法
+
+核心看一下重写了父类 `removeEldestEntry` 方法
+
+```java
+package com.ilovesshan.day25;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/31
+ * @description:
+ */
+public class MyLru<K, V> extends LinkedHashMap<K, V> {
+
+    @Override
+    protected boolean removeEldestEntry(Map.Entry eldest) {
+        // 什么时候时机开启 将最久没有被访问到的数据淘汰
+        return size() > 4;
+    }
+
+    public MyLru() {
+        super();
+    }
+
+    public MyLru(int initialCapacity, float loadFactor, boolean accessOrder) {
+        super(initialCapacity, loadFactor, accessOrder);
+    }
+
+
+    public static void main(String[] args) {
+
+        Map<String, String> map = new MyLru<>(10, 0.75F, true);
+
+        map.put("zs", "zhangsan");
+        map.put("ls", "lisi");
+        map.put("ww", "wangwu");
+        map.put("zl", "zhaoliu");
+        map.put("sq", "sunqi");
+        // 由于 removeEldestEntry方法中 当链表长度大于4就删除太久未访问的数据  被删除了"zs=zhangsan"
+        System.out.println(map); //{ls=lisi, ww=wangwu, zl=zhaoliu, sq=sunqi}
+
+        // 访问一次zl  看结果将"zl=zhaoliu"放到链表最后面
+        map.get("zl");
+        System.out.println(map); // {ls=lisi, ww=wangwu, sq=sunqi, zl=zhaoliu}
+
+
+        // 再访问一次ls  看结果将"ls=lisi"放到链表最后面
+        map.get("ls");
+        System.out.println(map); // {ww=wangwu, sq=sunqi, zl=zhaoliu, ls=lisi}
+
+
+        // 新加入两个 默认会被放到链表最后面
+        map.put("sb", "songba");
+        map.put("lj", "laojiu");
+
+        // “ww=wangwu, sq=sunqi,” 被删除了
+        System.out.println(map); // {zl=zhaoliu, ls=lisi, sb=songba, lj=laojiu}
+    }
+}
+
+```
+
