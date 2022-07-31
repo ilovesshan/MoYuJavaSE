@@ -189,3 +189,71 @@ public class UseIteratorWithSet {
 
 
 #### 2、增强for循环
+
+增强for循环是jdk提供的一个语法糖，用起来很简单，可以遍历List、set和Map
+
+增强for循环的底层本质也是使用了迭代器
+
+##### 2.1、增强for循环遍历List和Map
+
+```java
+package com.ilovesshan.day25;
+
+import java.util.*;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/31
+ * @description:
+ */
+public class EnhanceFor {
+
+    public static void main(String[] args) {
+        List<String> arrayList = new ArrayList<>();
+        arrayList.add("a");
+        arrayList.add("b");
+        arrayList.add("c");
+        arrayList.add("d");
+
+
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("a", "11");
+        hashMap.put("b", "22");
+        hashMap.put("c", "33");
+        hashMap.put("d", "44");
+
+
+        for (String s : arrayList) {
+            System.out.print(s + "\t");
+        }
+        System.out.println();
+
+        
+        
+        System.out.println("*******************************");
+
+        // Map 特殊一点点 先获取entrySet
+        Set<Map.Entry<String, String>> entries = hashMap.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            System.out.println("key: " + entry.getKey() + ", value: " + entry.getValue());
+        }
+
+    }
+}
+
+
+
+Connected to the target VM, address: '127.0.0.1:64608', transport: 'socket'
+a	b	c	d	
+*******************************
+key: a, value: 11
+key: b, value: 22
+key: c, value: 33
+key: d, value: 44
+Disconnected from the target VM, address: '127.0.0.1:64608', transport: 'socket'
+
+Process finished with exit code 0
+```
+
