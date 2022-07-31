@@ -259,9 +259,129 @@ Process finished with exit code 0
 
 
 
-#### 3、LinkedHashMap和LRU算法
+#### 3、在迭代中删除元素
 
-##### 3.1、LinkedHashMap和HashMap
+拿List举例，我们可以使用for循环进行边遍历边删除元素，也可以使用iterator提供的 `remove()` 方法，而 Set和Map就不能使用for了，如果想在迭代过程中删除元素只能使用iterator了，看几个案例吧。
+
+##### 3.1、List
+
+```java
+package com.ilovesshan.day25;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/31
+ * @description:
+ */
+public class RemoveDataInList {
+    public static void main(String[] args) {
+      
+        // 删除list集合中 值等于C的项
+        
+        ArrayList<String> list = new ArrayList<>();
+        list.add("A");
+        list.add("B");
+        list.add("B");
+        list.add("B");
+        list.add("C");
+
+
+        
+        // 1、使用for循环从前往后遍历时, 删除元素之后数组长度会自动缩短,数据会受影响,注意回退i位置
+        for (int i = 0; i < list.size(); i++) {
+            if ("B".equals(list.get(i))) {
+                list.remove(list.get(i));
+                // 注意回退i位置
+                i--;
+            }
+
+        }
+        System.out.println("list = " + list);
+
+
+        
+        // 2、使用for循环从后往前遍历时, 不需要考虑i的位置，因为数据不受影响
+        for (int i = list.size()-1; i >=0; i--) {
+            if ("B".equals(list.get(i))) {
+                list.remove(list.get(i));
+            }
+        }
+        System.out.println("list = " + list);
+
+
+        
+        // 3、比较推荐使用这种方法
+        Iterator<String> iterator = list.iterator();
+        while (iterator.hasNext()) {
+            if ("B".equals(iterator.next())) {
+                iterator.remove();
+            }
+        }
+        System.out.println("list = " + list);
+    }
+}
+
+```
+
+
+
+##### 3.2、Map和Set
+
+Map和Set区别不大，这里演示HashMap
+
+```java
+package com.ilovesshan.day25;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author: ilovesshan
+ * @date: 2022/7/31
+ * @description:
+ */
+public class RemoveDataInMap {
+    public static void main(String[] args) {
+        
+        // 删除hashMap集合中 value等于BB的项
+
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("A", "AA");
+        hashMap.put("B", "BB");
+        hashMap.put("C", "BB");
+        hashMap.put("D", "BB");
+        hashMap.put("E", "EE");
+
+
+        Iterator<Map.Entry<String, String>> iterator = hashMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            if ("BB".equals(entry.getValue())) {
+                iterator.remove();
+            }
+        }
+
+        System.out.println("hashMap = " + hashMap);  // hashMap = {A=AA, E=EE}
+    }
+}
+
+```
+
+
+
+
+
+#### 4、LinkedHashMap和LRU算法
+
+##### 4.1、LinkedHashMap和HashMap
 
 先看一个案例对比LinkedHashMap和HashMap
 
@@ -324,7 +444,7 @@ static class Entry<K,V> extends HashMap.Node<K,V> {
 
 
 
-##### 3.2、LRU算法
+##### 4.2、LRU算法
 
 LRU全称是Least Recently Used，即最近最久未使用的意思。
 
