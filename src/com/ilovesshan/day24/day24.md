@@ -413,7 +413,7 @@ Map同属于java.util包中，是集合的一部分，但与Collection是相互�
 
 
 
-#### 3、List源码流程
+#### 3、List接口源码
 
 ##### 3.1、ArrayList 源码分析
 
@@ -806,7 +806,7 @@ Map同属于java.util包中，是集合的一部分，但与Collection是相互�
 
   
 
-#### 4、Set源码流程
+#### 4、Set接口源码
 
 `HashSet` 底层本质就是使用 `HashMap`做了一层封装.
 
@@ -874,3 +874,195 @@ public void clear() {
     map.clear();
 }
 ```
+
+
+
+#### 5、HashMap源码
+
+
+
+##### 5.1、HashMap源码存储过程
+
++ hashMap据存储结构
+
+![image-20220731120111470](day24.assets/image-20220731120111470.png)
+
+
+
++ hashMap存储过程(大概)
+
+​	第一步：`HashMap`会生成一个长度为16的hash表(hashTable)，用来存放数据。
+
+​	第二步：第一次向`HashMap` 中插入数据时、会根据 `Key`计算 对应的 `HashCode`。
+
+​		模拟一下计算的过程(真实的算计并不是这样)，通过key得到一个hashCode，再用hashCode除16取余。
+
+​		取到的余数是一个 `1 - 15`之间的数，正好就对应了hash表的下标。得到下标之后，就能够确定一个槽位来存放数据。
+
+​	第三步：槽位确定之后，封装一个`Node` 节点用来保存数据，里面存放了 hash值、`key`、`value`、`next`。
+
+​	第四步：在下一次添加数据时、如果发现槽位已经有数据了，那么数据就会用链表的形式存储，这种现象也叫hash碰撞。
+
+​	第五步：当链表长度大于8并且hashTable的长度等于64，hashTable就会进行树化，转成红黑树。
+
+
+
+##### 5.2、HashMap重要点总结
+
++ hashMap的key可以为 `null`吗？
+
+  ```java
+  // 调用 put方法时
+  public V put(K key, V value) {
+      return putVal(hash(key), key, value, false, true);
+  }
+  
+  // hashMap的key可以为null, 为null 返回0
+  static final int hash(Object key) {
+      int h;
+      return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+  }
+  ```
+
+​		
+
++ hashMap的key的hash怎么计算?
+
+  ```java
+  static final int hash(Object key) {
+      int h;
+      return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+  }
+  ```
+
+  
+
++ hashMap的hash表什么情况下会扩容?
+
+  
+
+  1、第一次调用`put` 方法时
+
+  ```java
+  public V put(K key, V value) {
+      return putVal(hash(key), key, value, false, true);
+  }
+  
+  final V putVal(int hash, K key, V value, boolean onlyIfAbsent,  boolean evict) {
+      Node<K,V>[] tab; Node<K,V> p; int n, i;
+      if ((tab = table) == null || (n = tab.length) == 0)
+          // 调用 resize() 扩容
+          n = (tab = resize()).length;
+      if ((p = tab[i = (n - 1) & hash]) == null)
+          tab[i] = newNode(hash, key, value, null);
+      
+      // 省略剩余代码 ....
+  }
+  ```
+
+  
+
+  2、调用 `treeifyBin` 进行树化
+
+  ```java
+  final void treeifyBin(Node<K,V>[] tab, int hash) {
+      int n, index; Node<K,V> e;
+      if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)
+          // 调用 resize() 扩容
+          resize();
+      else if ((e = tab[index = (n - 1) & hash]) != null) {
+          TreeNode<K,V> hd = null, tl = null;
+          do {
+              TreeNode<K,V> p = replacementTreeNode(e, null);
+              if (tl == null)
+                  hd = p;
+              else {
+                  p.prev = tl;
+                  tl.next = p;
+              }
+              tl = p;
+          } while ((e = e.next) != null);
+          if ((tab[index] = hd) != null)
+              hd.treeify(tab);
+      }
+  }
+  ```
+
+  
+
+  3、当hashTable长度大于阈值时、会扩容
+
+  ```java
+  final void putMapEntries(Map<? extends K, ? extends V> m, boolean evict) {
+      int s = m.size();
+      // 省略剩余代码 ....
+      else if (s > threshold)
+          resize();
+      // 省略剩余代码 ....
+  }
+  
+  
+  
+  // 省略剩余代码 ....
+  if (size > threshold || (tab = table) == null ||  (n = tab.length) == 0){
+      n = (tab = resize()).length;
+  }
+  // 省略剩余代码 ....
+  ```
+
+
+
+​		
+
++ hashMap中什么时候会树化?
+
+  当链表长度大于8并且hashTable的长度等于64
+
+  
+
++ 为什么选择0.7为负载因子，8为树化阈值?
+
+  + 0.7为负载因子原因：
+
+    加载因子是哈希表在其容量自动增加之前可以达到多满的一种尺度，它衡量的是一个散列表的空间的使用程度，负载因子越大表示散列表的装填程度越高，反之愈小，如果你看过源代码，你会发现在初始条件下，HashMap在时间和空间两者间折中选择了0.75。
+
+    ```java
+    /**
+     * The load factor used when none specified in constructor.
+     */
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;
+    ```
+
+    
+
++ 选择8为树化阈值原因：
+
+  + 泊松分布是最重要的离散分布之一，它多出现在当X表示在一定的时间或空间内出现的事件个数这种场合。	
+
+    
+
+    源码：
+
+    ```java
+    * rarely used.  Ideally, under random hashCodes, the frequency of
+    * nodes in bins follows a Poisson distribution
+    * (http://en.wikipedia.org/wiki/Poisson_distribution) with a
+    * parameter of about 0.5 on average for the default resizing
+    * threshold of 0.75, although with a large variance because of
+    * resizing granularity. Ignoring variance, the expected
+    * occurrences of list size k are (exp(-0.5) * pow(0.5, k) /
+    * factorial(k)). The first values are:
+    *
+    * 0:    0.60653066
+    * 1:    0.30326533
+    * 2:    0.07581633
+    * 3:    0.01263606
+    * 4:    0.00157952
+    * 5:    0.00015795
+    * 6:    0.00001316
+    * 7:    0.00000094
+    * 8:    0.00000006
+    * more: less than 1 in ten million
+    ```
+
+​				翻译过来说的是，在理想情况下,使用随机哈希码，节点出现的频率在 hash 桶中遵循泊松分布。对照桶中元素个数和概率的		表，可以看到当用 0.75 作为加载因子时，桶中元素到达 8 个的时候，概率已经变得非常小，因此每个碰撞位置的 链表长度超过 8     		个是几乎不可能的，因此在链表节点到达 8 时才开始转化为红黑树。
