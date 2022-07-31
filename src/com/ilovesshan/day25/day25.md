@@ -579,3 +579,221 @@ public class MyLru<K, V> extends LinkedHashMap<K, V> {
 
 ```
 
+
+
+
+
+#### 5、TreeMap
+
+TreeMap底层就是基于红黑树实现的，所以也天然的支持排序，看个例子。
+
+```java
+package com.ilovesshan.day25;
+
+import java.util.TreeMap;
+
+public class TreeMapTest {
+    public static void main(String[] args) {
+        TreeMap<String, String> treeMap1 = new TreeMap<>();
+        TreeMap<Integer, String> treeMap2 = new TreeMap<>();
+
+        treeMap1.put("A", "A");
+        treeMap1.put("E", "E");
+        treeMap1.put("C", "C");
+        treeMap1.put("D", "D");
+        treeMap1.put("B", "B");
+
+        treeMap2.put(1, "A");
+        treeMap2.put(2, "B");
+        treeMap2.put(4, "D");
+        treeMap2.put(3, "C");
+
+        System.out.println("treeMap1 = " + treeMap1); // treeMap1 = {A=A, B=B, C=C, D=D, E=E}
+        System.out.println("treeMap2 = " + treeMap2); // treeMap2 = {1=A, 2=B, 3=C, 4=D}
+
+    }
+}
+
+```
+
+看到结果：貌似默认帮我我们对传入的数据进行排序了，看一下部分源码：
+
+
+
+TreeMap构造器：可以看出来，TreeMap构造器可以传入一个 comparator比较器，不传就是默认null
+
+```java
+public TreeMap() {
+    comparator = null;
+}
+
+
+public TreeMap(Comparator<? super K> comparator) {
+    this.comparator = comparator;
+}
+
+
+public TreeMap(Map<? extends K, ? extends V> m) {
+    comparator = null;
+    putAll(m);
+}
+
+
+public TreeMap(SortedMap<K, ? extends V> m) {
+    comparator = m.comparator();
+    try {
+        buildFromSorted(m.size(), m.entrySet().iterator(), null, null);
+    } catch (java.io.IOException cannotHappen) {
+    } catch (ClassNotFoundException cannotHappen) {
+    }
+}
+```
+
+
+
+ 源码中多处方法中都调用了 compare方法，例如 put添加数据时。
+
+```java
+// 如果comparator为空就将k1强转为一个Comparable对象否则就用comparator的compare方法进行比较
+
+final int compare(Object k1, Object k2) {
+    return comparator==null ? ((Comparable<? super K>)k1).compareTo((K)k2)  : comparator.compare((K)k1, (K)k2);
+}
+```
+
+
+
+定义一个User自己实现一个比较器，根据年龄或者身高来拟定数据插入的顺序。
+
+```java
+package com.ilovesshan.day25;
+
+import com.ilovesshan.day12.strategy.User;
+
+import java.util.TreeMap;
+
+
+public class TerrMapWithCustomComparator {
+    public static void main(String[] args) {
+
+        // o1 - o2 升序排列
+        // o2 - 01 降序排列
+        TreeMap<Student, String> treeMap1 = new TreeMap<>(((o1, o2) -> (int) (o1.getAge() - o2.getAge())));
+        TreeMap<Student, String> treeMap2 = new TreeMap<>(((o1, o2) -> (int) (o1.getHeight() - o2.getHeight())));
+
+
+        treeMap1.put(new Student("zs",30,175.0),"ZS");
+        treeMap1.put(new Student("ls",18,155.0),"LS");
+        treeMap1.put(new Student("ww",12,185.0),"WW");
+
+
+        treeMap2.put(new Student("zs",30,175.0),"ZS");
+        treeMap2.put(new Student("ls",18,155.0),"LS");
+        treeMap2.put(new Student("ww",12,185.0),"WW");
+
+        System.out.println(treeMap1);
+        System.out.println(treeMap2);
+        
+        // {Student{name='ww', age=12.0, height=185.0}=WW, Student{name='ls', age=18.0, height=155.0}=LS, Student{name='zs', age=30.0, height=175.0}=ZS}
+        // {Student{name='ls', age=18.0, height=155.0}=LS, Student{name='zs', age=30.0, height=175.0}=ZS, Student{name='ww', age=12.0, height=185.0}=WW}
+    }
+}
+
+
+class Student {
+    private String name;
+    private double age;
+    private double height;
+
+    public Student() {
+    }
+
+    public Student(String name, double age, double height) {
+        this.name = name;
+        this.age = age;
+        this.height = height;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getAge() {
+        return age;
+    }
+
+    public void setAge(double age) {
+        this.age = age;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+            "name='" + name + '\'' +
+            ", age=" + age +
+            ", height=" + height +
+            '}';
+    }
+}
+```
+
+
+
+
+
+#### 6、Collections工具类
+
+`Collections` 操作集合的工具类，下面列举常用的方法：
+
+```java
+package com.ilovesshan.day25;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+
+public class UseCollections {
+    public static void main(String[] args) {
+        List<String> arrayList = new ArrayList<>();
+        arrayList.add("a");
+        arrayList.add("b");
+        arrayList.add("c");
+        arrayList.add("d");
+
+        // 添加数据
+        Collections.addAll(arrayList, "e", "f", "g");
+        System.out.println("arrayList = " + arrayList); //  [a, b, c, d, e, f, g]
+
+
+        // 反转
+        Collections.reverse(arrayList);
+        System.out.println("arrayList = " + arrayList); //   [g, f, e, d, c, b, a]
+
+
+        // 替换
+        Collections.replaceAll(arrayList, "a", "A");
+        System.out.println("arrayList = " + arrayList); //  [g, f, e, d, c, b, A]
+
+
+        // 乱序 打乱集合顺序
+        Collections.shuffle(arrayList);
+        System.out.println("arrayList = " + arrayList); //   [c, f, g, b, d, a, e]
+
+    }
+}
+
+```
+
